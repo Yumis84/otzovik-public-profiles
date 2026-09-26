@@ -18,10 +18,26 @@ def main():
     if not name: raise SystemExit("profile.name is required")
     out=Path(a.output)/a.slug
     out.mkdir(parents=True,exist_ok=True)
-    services=data.get("services") or []
-    ratings=data.get("ratings_by_source") or []
-    city=(data.get("location") or {}).get("city","")
-    website=data.get("official_website") or ""
+    raw_services=data.get("services") or []
+    services=[x.get("name","") if isinstance(x,dict) else str(x) for x in raw_services]
+    services=[x for x in services if x]
+    raw_ratings=data.get("ratings_by_source")
+    if raw_ratings is None:
+        raw_ratings=data.get("sources") or []
+    ratings=[]
+    for x in raw_ratings:
+        if not isinstance(x,dict):
+            continue
+        latest=x.get("latest_rating") if isinstance(x.get("latest_rating"),dict) else {}
+        ratings.append({
+            "source": x.get("source") or x.get("name") or "",
+            "rating": x.get("rating") if x.get("rating") is not None else latest.get("rating"),
+            "rating_count": x.get("rating_count") if x.get("rating_count") is not None else latest.get("rating_count"),
+            "review_count": x.get("review_count") if x.get("review_count") is not None else latest.get("review_count")
+        })
+    city=(data.get("location") or {}).get("city","") if isinstance(data.get("location"),dict) else ""
+    city=city or data.get("city","")
+    website=data.get("official_website") or data.get("website") or ""
     service_html="".join(f"<li>{esc(x)}</li>" for x in services)
     rating_html="".join(f"<li><strong>{esc(x.get('source'))}</strong>: {esc(x.get('rating') if x.get('rating') is not None else 'нет данных')}</li>" for x in ratings)
     doc=f"""<!doctype html>
