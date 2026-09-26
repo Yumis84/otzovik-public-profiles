@@ -1,0 +1,59 @@
+name: Publish company profile
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Company slug
+        required: true
+        type: string
+      source_ref:
+        description: Source repository ref
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public build repository
+        uses: actions/checkout@v4
+
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          repository: Yumis84/otzovik-company-profile
+          ref: ${{ inputs.source_ref }}
+          path: _source
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+
+      - name: Validate slug
+        shell: bash
+        run: |
+          if [[ ! "${{ inputs.slug }}" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]]; then
+            echo "Invalid slug"
+            exit 1
+          fi
+
+      - name: Publish generated artifacts
+        run: python3 scripts/publish-profile.py --slug "${{ inputs.slug }}" --source _source
+
+      - name: Remove private source checkout
+        run: rm -rf _source
+
+      - name: Commit changed profile
+        shell: bash
+        run: |
+          git config user.name "otzovik-profile-publisher"
+          git config user.email "actions@users.noreply.github.com"
+          git add "profiles/${{ inputs.slug }}"
+          if git diff --cached --quiet; then
+            echo "No profile changes"
+            exit 0
+          fi
+          git commit -m "Publish profile: ${{ inputs.slug }}"
+          git push
