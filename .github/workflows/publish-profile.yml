@@ -29,7 +29,7 @@ jobs:
           repository: Yumis84/otzovik-company-profile
           ref: ${{ inputs.source_ref }}
           path: _source
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
 
       - name: Validate slug
         shell: bash
