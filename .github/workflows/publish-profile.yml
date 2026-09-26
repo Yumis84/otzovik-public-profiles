@@ -12,6 +12,11 @@ on:
         required: true
         default: main
         type: string
+      data_url:
+        description: Optional public JSON endpoint for data-driven rendering
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -23,14 +28,6 @@ jobs:
       - name: Checkout public build repository
         uses: actions/checkout@v4
 
-      - name: Checkout source repository
-        uses: actions/checkout@v4
-        with:
-          repository: Yumis84/otzovik-company-profile
-          ref: ${{ inputs.source_ref }}
-          path: _source
-          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
-
       - name: Validate slug
         shell: bash
         run: |
@@ -39,11 +36,36 @@ jobs:
             exit 1
           fi
 
-      - name: Publish generated artifacts
+      - name: Render profile from public JSON
+        if: ${{ inputs.data_url != '' }}
+        shell: bash
+        run: |
+          case "${{ inputs.data_url }}" in
+            https://rzhlcszqtuhkhfibygnk.supabase.co/*) ;;
+            *) echo "data_url host is not allowed"; exit 1 ;;
+          esac
+          curl --fail --silent --show-error --location \
+            --proto '=https' --tlsv1.2 \
+            --max-time 30 --max-filesize 2097152 \
+            "${{ inputs.data_url }}" -o /tmp/profile.json
+          python3 scripts/render-profile.py --slug "${{ inputs.slug }}" --data /tmp/profile.json
+
+      - name: Checkout source repository
+        if: ${{ inputs.data_url == '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: Yumis84/otzovik-company-profile
+          ref: ${{ inputs.source_ref }}
+          path: _source
+          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
+
+      - name: Publish legacy prepared artifacts
+        if: ${{ inputs.data_url == '' }}
         run: python3 scripts/publish-profile.py --slug "${{ inputs.slug }}" --source _source
 
-      - name: Remove private source checkout
-        run: rm -rf _source
+      - name: Remove source checkout
+        if: ${{ always() }}
+        run: rm -rf _source /tmp/profile.json
 
       - name: Commit changed profile
         shell: bash
