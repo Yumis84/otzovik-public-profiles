@@ -21,12 +21,18 @@ on:
         default: main
         type: string
 
+  repository_dispatch:
+    types: [publish-company-profile]
+
 permissions:
   contents: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      PROFILE_SLUG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.slug || inputs.slug }}
+      PUBLISH_MODE: ${{ github.event_name == 'repository_dispatch' && 'supabase' || inputs.mode }}
     steps:
       - name: Checkout public build repository
         uses: actions/checkout@v4
@@ -34,13 +40,13 @@ jobs:
       - name: Validate slug
         shell: bash
         run: |
-          if [[ ! "${{ inputs.slug }}" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]]; then
+          if [[ ! "${{ env.PROFILE_SLUG }}" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]]; then
             echo "Invalid slug"
             exit 1
           fi
 
       - name: Fetch canonical public profile from Supabase
-        if: ${{ inputs.mode == 'supabase' }}
+        if: ${{ env.PUBLISH_MODE == 'supabase' }}
         shell: bash
         env:
           SUPABASE_PUBLISHABLE_KEY: sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-
@@ -51,7 +57,7 @@ jobs:
             -H 'Content-Type: application/json' \
             -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
-            --data "{\"p_slug\":\"${{ inputs.slug }}\"}" \
+            --data "{\"p_slug\":\"${{ env.PROFILE_SLUG }}\"}" \
             -o /tmp/profile.json
           python3 - <<'PY'
           import json
@@ -60,10 +66,10 @@ jobs:
           if not isinstance(d,dict) or not d.get('name'):
               raise SystemExit('Supabase returned no public company profile')
           PY
-          python3 scripts/render-profile.py --slug "${{ inputs.slug }}" --data /tmp/profile.json
+          python3 scripts/render-profile.py --slug "${{ env.PROFILE_SLUG }}" --data /tmp/profile.json
 
       - name: Checkout legacy source repository
-        if: ${{ inputs.mode == 'legacy-source' }}
+        if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
         uses: actions/checkout@v4
         with:
           repository: Yumis84/otzovik-company-profile
@@ -72,8 +78,8 @@ jobs:
           token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
 
       - name: Publish legacy prepared artifacts
-        if: ${{ inputs.mode == 'legacy-source' }}
-        run: python3 scripts/publish-profile.py --slug "${{ inputs.slug }}" --source _source
+        if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
+        run: python3 scripts/publish-profile.py --slug "${{ env.PROFILE_SLUG }}" --source _source
 
       - name: Remove temporary source data
         if: ${{ always() }}
@@ -84,10 +90,10 @@ jobs:
         run: |
           git config user.name "otzovik-profile-publisher"
           git config user.email "actions@users.noreply.github.com"
-          git add "profiles/${{ inputs.slug }}"
+          git add "profiles/${{ env.PROFILE_SLUG }}"
           if git diff --cached --quiet; then
             echo "No profile changes"
             exit 0
           fi
-          git commit -m "Publish profile: ${{ inputs.slug }}"
+          git commit -m "Publish profile: ${{ env.PROFILE_SLUG }}"
           git push
