@@ -7,15 +7,18 @@ on:
         description: Company slug
         required: true
         type: string
+      mode:
+        description: Publication source
+        required: true
+        default: supabase
+        type: choice
+        options:
+          - supabase
+          - legacy-source
       source_ref:
-        description: Source repository ref
+        description: Legacy source repository ref
         required: true
         default: main
-        type: string
-      data_url:
-        description: Optional public JSON endpoint for data-driven rendering
-        required: false
-        default: ""
         type: string
 
 permissions:
@@ -36,22 +39,31 @@ jobs:
             exit 1
           fi
 
-      - name: Render profile from public JSON
-        if: ${{ inputs.data_url != '' }}
+      - name: Fetch canonical public profile from Supabase
+        if: ${{ inputs.mode == 'supabase' }}
         shell: bash
+        env:
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-
         run: |
-          case "${{ inputs.data_url }}" in
-            https://rzhlcszqtuhkhfibygnk.supabase.co/*) ;;
-            *) echo "data_url host is not allowed"; exit 1 ;;
-          esac
-          curl --fail --silent --show-error --location \
-            --proto '=https' --tlsv1.2 \
-            --max-time 30 --max-filesize 2097152 \
-            "${{ inputs.data_url }}" -o /tmp/profile.json
+          curl --fail --silent --show-error \
+            --proto '=https' --tlsv1.2 --max-time 30 --max-filesize 2097152 \
+            -X POST 'https://rzhlcszqtuhkhfibygnk.supabase.co/rest/v1/rpc/get_public_company_profile_v2' \
+            -H 'Content-Type: application/json' \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
+            --data "{\"p_slug\":\"${{ inputs.slug }}\"}" \
+            -o /tmp/profile.json
+          python3 - <<'PY'
+          import json
+          p='/tmp/profile.json'
+          d=json.load(open(p,encoding='utf-8'))
+          if not isinstance(d,dict) or not d.get('name'):
+              raise SystemExit('Supabase returned no public company profile')
+          PY
           python3 scripts/render-profile.py --slug "${{ inputs.slug }}" --data /tmp/profile.json
 
-      - name: Checkout source repository
-        if: ${{ inputs.data_url == '' }}
+      - name: Checkout legacy source repository
+        if: ${{ inputs.mode == 'legacy-source' }}
         uses: actions/checkout@v4
         with:
           repository: Yumis84/otzovik-company-profile
@@ -60,10 +72,10 @@ jobs:
           token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
 
       - name: Publish legacy prepared artifacts
-        if: ${{ inputs.data_url == '' }}
+        if: ${{ inputs.mode == 'legacy-source' }}
         run: python3 scripts/publish-profile.py --slug "${{ inputs.slug }}" --source _source
 
-      - name: Remove source checkout
+      - name: Remove temporary source data
         if: ${{ always() }}
         run: rm -rf _source /tmp/profile.json
 
