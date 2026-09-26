@@ -1,0 +1,143 @@
+{
+  "id": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9",
+  "city": "Калининград",
+  "name": "student-agency",
+  "slug": "student-agency",
+  "media": [
+    {
+      "id": "08fc99f1-09bd-49aa-b837-97431b9dcbc5",
+      "alt": null,
+      "type": "logo",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T21:31:55.051683+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/logo/1788989513215-1000123863.webp"
+    },
+    {
+      "id": "8cf587c0-24c6-4243-8796-1ba182b0dee4",
+      "alt": null,
+      "type": "cover",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T21:32:02.223821+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/cover/1788989520299-1000125851.webp"
+    },
+    {
+      "id": "d5018afb-8752-44f5-8de5-3817aee35507",
+      "alt": null,
+      "type": "interior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T03:38:53.296355+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/interior/1789011531347-1000120774.webp"
+    },
+    {
+      "id": "332bab3e-e571-4554-8b77-032b1ff5f90c",
+      "alt": null,
+      "type": "exterior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T03:39:01.211592+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/exterior/1789011539394-1000123102.webp"
+    },
+    {
+      "id": "f89a9320-9368-49e1-9f37-fe42624597af",
+      "alt": null,
+      "type": "products",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T03:39:13.561129+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/products/1789011551620-1000117702.webp"
+    },
+    {
+      "id": "d1b79763-a1fa-4f27-9ed3-a6050043cb68",
+      "alt": null,
+      "type": "team",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T03:39:23.496607+00:00",
+      "object_name": "dcf1ab26-eb26-4ef8-8eac-b46e89d204c9/team/1789011561647-1000125848.webp"
+    }
+  ],
+  "phone": "4012055-55-55",
+  "reviews": [],
+  "sources": [],
+  "website": "https://student-agency.ru",
+  "services": [
+    {
+      "id": "137ea575-1265-4eee-b059-4442ad3e4b1c",
+      "name": "Тест 2",
+      "category": "Мойка",
+      "source_url": "owner-submitted",
+      "description": "Агенство тестовое тут",
+      "verified_at": "2026-09-08T22:48:12.078505+00:00",
+      "official_url": "https://student-agency.ru"
+    },
+    {
+      "id": "b82f7e78-36e8-4c5e-9c15-bd7933b72a15",
+      "name": "Тест 4 после правки",
+      "category": "Проверка",
+      "source_url": "owner-submitted",
+      "description": "Теперь должно работать",
+      "verified_at": "2026-09-08T22:54:33.90485+00:00",
+      "official_url": "https://student-agency.ru"
+    },
+    {
+      "id": "81b538b3-96fa-4a28-a2ca-943ec9bf9f23",
+      "name": "Тестовая услуга",
+      "category": "Темтовая",
+      "source_url": "owner-submitted",
+      "description": "Тестовая услуга описание",
+      "verified_at": "2026-09-08T22:48:44.186963+00:00",
+      "official_url": "https://student-agency.ru"
+    },
+    {
+      "id": "03b1bb30-f2da-42f4-bd2e-b76120153fff",
+      "name": "Тест",
+      "category": "Тест",
+      "source_url": "owner-submitted",
+      "description": "Тест",
+      "verified_at": "2026-09-07T19:47:41.478978+00:00",
+      "official_url": "https://student-agency.ru"
+    }
+  ],
+  "locations": [
+    {
+      "id": "725286f1-d295-4f30-ab68-c1bf2a8d3253",
+      "city": "Калининград",
+      "name": "Тест 3",
+      "hours": {
+        "text": "Понедельник-пятница 9:00-18:00"
+      },
+      "phone": "665544",
+      "address": "Баранова",
+      "source_url": "owner-submitted",
+      "verified_at": "2026-09-08T22:47:01.109897+00:00",
+      "official_url": "https://student-agency.ru",
+      "relationship_type": "owned"
+    },
+    {
+      "id": "af595ee1-e599-4714-ac8d-0ca4eafbbc10",
+      "city": "Калининград",
+      "name": "Тестовый филиал 2",
+      "hours": {
+        "text": "Понедельник-пятница 9:00-18:00"
+      },
+      "phone": "89814627166",
+      "address": "Леонова",
+      "source_url": "owner-submitted",
+      "verified_at": "2026-09-08T22:35:43.096792+00:00",
+      "official_url": "https://student-agency.ru",
+      "relationship_type": "owned"
+    }
+  ],
+  "legal_name": null,
+  "updated_at": "2026-09-07T19:01:31.921811+00:00",
+  "description": null,
+  "native_rating": {
+    "rating": null,
+    "rating_scale": 5,
+    "review_count": 0
+  },
+  "profile_status": "ready"
+}

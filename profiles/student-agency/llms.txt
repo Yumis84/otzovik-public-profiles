@@ -1,0 +1,5 @@
+# student-agency
+slug: student-agency
+city: Калининград
+services_count: 4
+rating_sources_count: 0
