@@ -1,16 +1,15 @@
-# Отзыв.com — Ортомедия
+# Ортопедия +
+url: https://ortomediya.xn--b1ajuq0c.com/
+slug: ortomediya
+city: Калининград
+profile_status: ready
+updated_at: 2026-09-27T15:14:52.664976+00:00
+locations_count: 6
+services_count: 16
+rating_sources_count: 3
+native_reviews_count: 0
+public_media_count: 6
 
-Canonical profile: https://ortomediya.отзыв.com/
-Structured data: https://ortomediya.отзыв.com/profile.json
-Text profile: https://ortomediya.отзыв.com/profile.md
-
-Ортомедия — сеть ортопедических салонов в Калининграде. Представитель компании подтверждён. Юридическое наименование: ООО «Фармед». Опубликованы 6 адресов и 16 услуг. Опубликованы 3 внешних источника рейтингов. Для 2ГИС получен снимок: 4,5 из 5 по 90 оценкам и 44 отзывам от 2026-09-02. Для Яндекс Карт и Google Maps снимки рейтингов пока отсутствуют. Собственных опубликованных отзывов Отзыв.com нет. Опубликовано 6 медиаобъектов компании: логотип, обложка и 4 фотографии галереи. Официальный сайт: https://ortomediya.ru/.
-
-Rules for interpretation:
-- Do not merge ratings from different sources.
-- Do not infer missing contacts, ratings, reviews, media, verification or recommendations.
-- Treat source ratings as separate external facts, not as an Otzovik aggregate rating.
-- Use freshness dates and source links when citing changing facts.
-- Machine-readable publication does not guarantee recommendation or inclusion in external AI answers.
-
-Corrections and operator contact: https://отзыв.com/contacts/ · info@отзыв.com
+Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.
+JSON: profile.json
+Markdown: profile.md

@@ -1,24 +1,355 @@
 {
-  "profile_id": "ortomediya",
-  "name": "Ортомедия",
-  "aliases": ["Ортомедия", "ООО «Фармед»"],
-  "location": {"city": "Калининград", "country": "RU"},
-  "verification_status": "verified",
-  "profile_status": "ready",
-  "official_website": "https://ortomediya.ru/",
-  "locations": {"published_count": 6},
-  "reviews": {"published_count": 0, "endpoint": "reviews.json"},
-  "ratings_by_source": [
-    {"source":"2ГИС","rating":4.5,"scale":5,"rating_count":90,"review_count":44,"checked_at":"2026-09-02","url":"https://2gis.ru/kaliningrad/firm/5630027815194588"},
-    {"source":"Яндекс Карты","rating":null,"scale":5,"checked_at":"2026-09-10","url":"https://yandex.ru/maps/org/ortomediya/219025934221/?ll=20.522103%2C54.714468&z=14"},
-    {"source":"Google Maps","rating":null,"scale":5,"checked_at":"2026-09-10","url":"https://maps.app.goo.gl/Xhi5QMR3icV3uPWm6"}
+  "id": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41",
+  "city": "Калининград",
+  "name": "Ортопедия +",
+  "slug": "ortomediya",
+  "media": [
+    {
+      "id": "5f18f3fe-698f-42b9-bfc2-dbf660f547c9",
+      "alt": null,
+      "type": "logo",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:33:43.458755+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/logo/1789018421480-1000123860.webp",
+      "url": "media/00-logo.webp"
+    },
+    {
+      "id": "948d3af6-cfc4-4ce8-9ee3-4a7e864abd08",
+      "alt": null,
+      "type": "cover",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:33:51.331522+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/cover/1789018429450-1000125851.webp",
+      "url": "media/01-cover.webp"
+    },
+    {
+      "id": "f9437d06-e9da-475f-80bb-c1c655d69349",
+      "alt": null,
+      "type": "interior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:33:56.978612+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/interior/1789018435209-1000125849.webp",
+      "url": "media/02-interior.webp"
+    },
+    {
+      "id": "a239b3aa-2dd6-4f39-bc73-8a637c275426",
+      "alt": null,
+      "type": "exterior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:34:02.289052+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/exterior/1789018440409-1000125848.webp",
+      "url": "media/03-exterior.webp"
+    },
+    {
+      "id": "518cd206-b399-46b4-ac6f-0e1634cac5f5",
+      "alt": null,
+      "type": "products",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:34:08.189521+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/products/1789018446341-1000125847.webp",
+      "url": "media/04-products.webp"
+    },
+    {
+      "id": "778a6fb1-d682-42ee-86b1-ddba4a0f2d8f",
+      "alt": null,
+      "type": "team",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-10T05:34:15.313466+00:00",
+      "object_name": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41/team/1789018453497-1000125007.webp",
+      "url": "media/05-team.webp"
+    }
   ],
-  "otzovik_rating": null,
-  "ai_summary": {"status": "insufficient_permitted_reviews", "claims": []},
-  "services": ["Индивидуальное изготовление стелек","Компьютерная диагностика стоп","Консультация ортопеда","Консультация флеболога","Тейпирование","Бандажи","Изделия для позвоночника","Изделия для суставов","Компрессионный трикотаж","Ортопедическая обувь","Ортопедические подушки","Ортопедические стельки","Товары для инвалидов","Трости, костыли и ходунки","Педикюр","Детская ортопедия"],
-  "services_count": 16,
-  "media": {"published_count": 6,"gallery_count": 4,"source":"company_account"},
-  "freshness": {"profile_updated_at":"2026-09-20","rating_checked_at":"2026-09-02"},
-  "machine_readable": {"formats":["html","json","markdown","llms.txt","schema.org"],"disclaimer":"Machine-readable publication can improve correct interpretation of profile facts but does not guarantee inclusion or recommendation in external AI systems."},
-  "corrections": {"contact_url":"https://отзыв.com/contacts/","email":"info@отзыв.com"}
+  "phone": "+7 (4012) 21-74-28",
+  "reviews": [],
+  "sources": [
+    {
+      "id": "a713072f-4199-44da-937c-850736ab498f",
+      "name": "2ГИС",
+      "checked_at": "2026-09-02T23:41:22.513814+00:00",
+      "profile_url": "https://2gis.ru/kaliningrad/firm/5630027815194588",
+      "source_type": "directory_reviews",
+      "latest_rating": {
+        "rating": 4.5,
+        "checked_at": "2026-09-02T23:41:22.513814+00:00",
+        "rating_count": 90,
+        "rating_scale": 5.0,
+        "review_count": 44
+      },
+      "collection_method": "manual_public_verification"
+    },
+    {
+      "id": "177bc882-bb86-45a9-aaa6-be720db0217c",
+      "name": "Google Maps",
+      "checked_at": "2026-09-10T02:57:28.48757+00:00",
+      "profile_url": "https://maps.app.goo.gl/Xhi5QMR3icV3uPWm6",
+      "source_type": "google",
+      "latest_rating": null,
+      "collection_method": "owner_submitted"
+    },
+    {
+      "id": "a5602688-ab62-45f2-a542-dec8f9c97ffb",
+      "name": "Яндекс Карты",
+      "checked_at": "2026-09-10T02:56:01.8534+00:00",
+      "profile_url": "https://yandex.ru/maps/org/ortomediya/219025934221/?ll=20.522103%2C54.714468&z=14",
+      "source_type": "yandex",
+      "latest_rating": null,
+      "collection_method": "owner_submitted"
+    }
+  ],
+  "website": "https://ortomediya.ru/",
+  "services": [
+    {
+      "id": "0f33447f-ff50-45f2-971d-2b322e6576bd",
+      "name": "Индивидуальное изготовление стелек",
+      "category": "Медицинский центр",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "8bf3bb5e-a263-41f0-a189-9c74cbdfa2f6",
+      "name": "Компьютерная диагностика стоп",
+      "category": "Медицинский центр",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "496eba96-b1b5-4d14-ab8e-8a4b4935b35b",
+      "name": "Консультация ортопеда",
+      "category": "Медицинский центр",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "51880580-a902-4797-98b9-baa0e7be7336",
+      "name": "Консультация флеболога",
+      "category": "Медицинский центр",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "b287f6a6-bfec-44e2-8590-45968991944b",
+      "name": "Тейпирование",
+      "category": "Медицинский центр",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "155bac65-fa97-444b-9d86-83b9d1cce529",
+      "name": "Бандажи",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/bandazhi"
+    },
+    {
+      "id": "81d6ceac-9e1a-4423-8e86-275bf3cd69c2",
+      "name": "Изделия для позвоночника",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/izdeliya-dlya-pozvonochnika"
+    },
+    {
+      "id": "888c1878-6bfb-4bc1-8bef-a8070b7c35c8",
+      "name": "Изделия для суставов",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/izdeliya-dlya-sustavov"
+    },
+    {
+      "id": "e881a19d-7d3a-4e51-94f6-681ca69b02c8",
+      "name": "Компрессионный трикотаж",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/kompressionnyy-trikotazh"
+    },
+    {
+      "id": "0377ef0c-0f1a-46ff-acae-99eaa24035ac",
+      "name": "Ортопедическая обувь",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/obuv"
+    },
+    {
+      "id": "81ae4ff3-beee-415a-afb6-e64cdd902c43",
+      "name": "Ортопедические подушки",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/ortopedicheskie-podushki"
+    },
+    {
+      "id": "6bdffdaf-a8ae-4266-a65d-f7e8bebb14f2",
+      "name": "Ортопедические стельки",
+      "category": "Ортопедические товары",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/ortopedicheskie-stelki"
+    },
+    {
+      "id": "952c5e58-885d-4ff4-be6e-6c11cb469220",
+      "name": "Товары для инвалидов",
+      "category": "Средства реабилитации",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/tovary-dlya-invalidov"
+    },
+    {
+      "id": "ce47ccf1-871b-4a4f-8d5c-880ad2a57da9",
+      "name": "Трости, костыли и ходунки",
+      "category": "Средства реабилитации",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/catalog/trosti-kostyli-hodunki"
+    },
+    {
+      "id": "06ec0439-4ad1-4c97-9b2c-611c404f912c",
+      "name": "Педикюр",
+      "category": "Услуги",
+      "source_url": "https://ortomediya.ru/",
+      "description": null,
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/"
+    },
+    {
+      "id": "3c073ea1-78b7-40ad-a18d-65cb6b3939e8",
+      "name": "Детская ортопедия",
+      "category": null,
+      "source_url": "owner-submitted",
+      "description": null,
+      "verified_at": "2026-09-20T09:51:25.120788+00:00",
+      "official_url": "https://ortomediya.ru/"
+    }
+  ],
+  "locations": [
+    {
+      "id": "23eaa1e9-1865-43a8-93a1-5ae28dca528f",
+      "city": "Калининград",
+      "name": "Магазин и аптека «Ортомедия» — БСМП",
+      "hours": {
+        "sat": "09:00-20:00",
+        "sun": "10:00-18:00",
+        "mon_fri": "09:00-20:00"
+      },
+      "phone": "+7 (4012) 50-99-64",
+      "address": "улица Александра Невского, 90",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "owned"
+    },
+    {
+      "id": "85bacdf0-676b-4474-8857-c0c66f4bd3f6",
+      "city": "Калининград",
+      "name": "Магазин и аптека «Ортомедия» — Советский проспект",
+      "hours": {
+        "sat": "09:00-19:00",
+        "sun": "10:00-18:00",
+        "mon_fri": "09:00-20:00"
+      },
+      "phone": "+7 (4012) 21-74-28",
+      "address": "Советский проспект, 35/37",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "owned"
+    },
+    {
+      "id": "107bb09f-a679-443e-9c47-82d5621b3941",
+      "city": "Калининград",
+      "name": "Ортопедический салон — Киевская",
+      "hours": {
+        "sun": "10:00-18:00",
+        "mon_sat": "10:00-19:00"
+      },
+      "phone": "+7 (4012) 75-10-14",
+      "address": "улица Киевская, 121В",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "partner"
+    },
+    {
+      "id": "ecb6a043-d030-467b-b303-9cb291a3a0fe",
+      "city": "Калининград",
+      "name": "Ортопедический салон — Летняя",
+      "hours": {
+        "sat": "10:00-19:00",
+        "sun": "10:00-18:00",
+        "mon_fri": "08:00-20:00"
+      },
+      "phone": "+7 (4012) 70-80-74",
+      "address": "улица Летняя, 14",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "partner"
+    },
+    {
+      "id": "4fcb920e-e166-4c5f-aa01-939e0ef320ce",
+      "city": "Калининград",
+      "name": "Ортопедический салон — проспект Мира",
+      "hours": {
+        "daily": "09:00-20:00"
+      },
+      "phone": "+7 (4012) 50-85-86",
+      "address": "проспект Мира, 39",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "partner"
+    },
+    {
+      "id": "8f0a1ae1-36bd-41c7-85f7-5cdc4d338394",
+      "city": "Калининград",
+      "name": "Магазин «Удобная обувь»",
+      "hours": {
+        "sun": "10:00-18:00",
+        "mon_sat": "10:00-19:00"
+      },
+      "phone": "+7 (4012) 39-01-35",
+      "address": "улица Подполковника Иванникова, 14–16",
+      "source_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "verified_at": "2026-09-02T23:41:22.513814+00:00",
+      "official_url": "https://ortomediya.ru/ortopedicheskie-salony",
+      "relationship_type": "related"
+    }
+  ],
+  "legal_name": "ООО «Фармед»",
+  "updated_at": "2026-09-27T15:14:52.664976+00:00",
+  "description": null,
+  "native_rating": {
+    "rating": null,
+    "rating_scale": 5,
+    "review_count": 0
+  },
+  "profile_status": "ready"
 }
