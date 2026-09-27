@@ -54,7 +54,7 @@ def main():
     public_media=[]
     for x in media:
         src=x.get("public_url") or x.get("url")
-        if isinstance(src,str) and src.startswith("https://"):
+        if isinstance(src,str) and (src.startswith("https://") or re.fullmatch(r"media/[A-Za-z0-9._-]+",src)):
             public_media.append((x,src))
     updated_at=data.get("updated_at") or ""
     canonical=f"https://{a.slug}.xn--b1ajuq0c.com/"
