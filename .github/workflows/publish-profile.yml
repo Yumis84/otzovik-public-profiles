@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Report publication lifecycle: building
-        if: ${{ env.PUBLISH_MODE == 'supabase' && env.STATUS_SECRET != '' }}
+        if: ${{ env.PUBLISH_MODE == 'supabase' }}
         continue-on-error: true
         shell: bash
         env:
@@ -188,7 +188,7 @@ jobs:
           git push
 
       - name: Report publication lifecycle: published
-        if: ${{ success() && env.PUBLISH_MODE == 'supabase' && env.STATUS_SECRET != '' }}
+        if: ${{ success() && env.PUBLISH_MODE == 'supabase' }}
         continue-on-error: true
         shell: bash
         env:
@@ -202,7 +202,7 @@ jobs:
             --data "{\"slug\":\"${{ env.PROFILE_SLUG }}\",\"status\":\"published\",\"workflow_run_id\":${{ github.run_id }},\"artifact_revision\":\"${REVISION}\"}"
 
       - name: Report publication lifecycle: failed
-        if: ${{ failure() && env.PUBLISH_MODE == 'supabase' && env.STATUS_SECRET != '' }}
+        if: ${{ failure() && env.PUBLISH_MODE == 'supabase' }}
         continue-on-error: true
         shell: bash
         env:
