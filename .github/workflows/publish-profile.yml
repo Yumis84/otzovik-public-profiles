@@ -29,6 +29,9 @@ permissions:
 
 jobs:
   publish:
+    concurrency:
+      group: publish-profile-${{ github.event_name == 'repository_dispatch' && github.event.client_payload.slug || inputs.slug }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
       PROFILE_SLUG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.slug || inputs.slug }}
@@ -44,6 +47,10 @@ jobs:
             echo "Invalid slug"
             exit 1
           fi
+
+      - name: Validate renderer syntax
+        if: ${{ env.PUBLISH_MODE == 'supabase' }}
+        run: python3 -m py_compile scripts/render-profile.py
 
       - name: Fetch canonical public profile from Supabase
         if: ${{ env.PUBLISH_MODE == 'supabase' }}
@@ -67,6 +74,23 @@ jobs:
               raise SystemExit('Supabase returned no public company profile')
           PY
           python3 scripts/render-profile.py --slug "${{ env.PROFILE_SLUG }}" --data /tmp/profile.json
+
+      - name: Validate generated public artifacts
+        if: ${{ env.PUBLISH_MODE == 'supabase' }}
+        shell: bash
+        run: |
+          test -s "profiles/${{ env.PROFILE_SLUG }}/index.html"
+          test -s "profiles/${{ env.PROFILE_SLUG }}/profile.css"
+          test -s "profiles/${{ env.PROFILE_SLUG }}/profile.json"
+          test -s "profiles/${{ env.PROFILE_SLUG }}/profile.md"
+          test -s "profiles/${{ env.PROFILE_SLUG }}/llms.txt"
+          grep -q 'application/ld+json' "profiles/${{ env.PROFILE_SLUG }}/index.html"
+          grep -q 'rel="canonical"' "profiles/${{ env.PROFILE_SLUG }}/index.html"
+          if grep -qi 'noindex' "profiles/${{ env.PROFILE_SLUG }}/index.html"; then
+            echo "Generated public profile must not contain noindex"
+            exit 1
+          fi
+          python3 -m json.tool "profiles/${{ env.PROFILE_SLUG }}/profile.json" >/dev/null
 
       - name: Checkout legacy source repository
         if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
