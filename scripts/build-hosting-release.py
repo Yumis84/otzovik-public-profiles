@@ -59,8 +59,7 @@ def main() -> None:
         "Allow: /\n"
         "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml\n"
     )
-    (out / "sitemap.xml").write_text(sitemap, encoding="utf-8")
-    (out / "robots.txt").write_text(robots, encoding="utf-8")
+    sitemap_path = out / "sitemap.xml"\n    robots_path = out / "robots.txt"\n    sitemap_path.write_text(sitemap, encoding="utf-8")\n    robots_path.write_text(robots, encoding="utf-8")
 
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
