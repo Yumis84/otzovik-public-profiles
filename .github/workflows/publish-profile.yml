@@ -145,6 +145,33 @@ jobs:
         if: ${{ always() }}
         run: rm -rf _source /tmp/profile.json
 
+      - name: Validate portable hosting release
+        if: ${{ env.PUBLISH_MODE == 'supabase' }}
+        shell: bash
+        run: |
+          rm -rf /tmp/otzovik-release
+          python3 scripts/build-hosting-release.py \
+            --profiles profiles \
+            --out /tmp/otzovik-release
+          test -s /tmp/otzovik-release/manifest.json
+          test -s /tmp/otzovik-release/sitemap.xml
+          test -s /tmp/otzovik-release/robots.txt
+          test -s /tmp/otzovik-release/otzovik-public-profiles.tar.gz
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import xml.etree.ElementTree as ET
+
+          out = pathlib.Path("/tmp/otzovik-release")
+          manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+          if not manifest.get("profiles"):
+              raise SystemExit("Release manifest contains no profiles")
+          ET.parse(out / "sitemap.xml")
+          robots = (out / "robots.txt").read_text(encoding="utf-8")
+          if "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml" not in robots:
+              raise SystemExit("robots.txt does not reference canonical sitemap")
+          PY
+
       - name: Commit changed profile
         shell: bash
         run: |
