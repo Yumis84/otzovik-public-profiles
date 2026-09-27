@@ -131,7 +131,7 @@ jobs:
           repository: Yumis84/otzovik-company-profile
           ref: ${{ inputs.source_ref }}
           path: _source
-          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
+          token: ${{ github.token }}
 
       - name: Publish legacy prepared artifacts
         if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
