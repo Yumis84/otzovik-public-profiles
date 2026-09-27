@@ -40,6 +40,7 @@ def main():
     city=(data.get("location") or {}).get("city","") if isinstance(data.get("location"),dict) else ""
     city=city or data.get("city","")
     website=data.get("official_website") or data.get("website") or ""
+    if not (isinstance(website,str) and website.startswith(("https://","http://"))): website=""
     service_html="".join(f"<span class='chip'>{esc(x)}</span>" for x in services) or "<p class='muted'>Услуги пока не опубликованы.</p>"
     def render_rating(x):
         score=esc(x.get("rating") if x.get("rating") is not None else "—")
@@ -102,7 +103,9 @@ def main():
         if isinstance(response,dict): response=response.get("text") or response.get("body")
         response_html=f"<div class='company-response'><strong>Ответ компании</strong><p>{esc(response)}</p></div>" if response else ""
         author=esc(x.get("author_display_name") or x.get("author_name") or "Пользователь")
-        return f"<article class='review'><div class='review-head'><strong>{author}</strong><div class='stars'>{'★' * int(x.get('rating') or 0)}</div></div><p>{esc(x.get('text') or x.get('body') or '')}</p>{response_html}</article>"
+        try: rating=max(0,min(5,int(x.get("rating") or 0)))
+        except (TypeError,ValueError): rating=0
+        return f"<article class='review'><div class='review-head'><strong>{author}</strong><div class='stars'>{'★' * rating}</div></div><p>{esc(x.get('text') or x.get('body') or '')}</p>{response_html}</article>"
     review_html="".join(render_review(x) for x in reviews) or "<p class='muted'>Собственных опубликованных отзывов пока нет.</p>"
     media_html="".join(f"<figure class='media-card'><button class='media-open' type='button' data-media-src='{esc(src)}' aria-label='Открыть фотографию'><img src='{esc(src)}' alt='{esc(x.get('alt') or x.get('caption') or name)}' loading='lazy'></button><figcaption><span class='media-type'>{esc(x.get('type') or 'photo')}</span>{esc(x.get('caption') or '')}</figcaption></figure>" for x,src in public_media)
     if not media_html:
