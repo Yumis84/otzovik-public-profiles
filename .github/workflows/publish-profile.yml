@@ -38,6 +38,19 @@ jobs:
       PUBLISH_MODE: ${{ github.event_name == 'repository_dispatch' && 'supabase' || inputs.mode }}
 
     steps:
+      - name: Report publication lifecycle: building
+        if: ${{ env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          STATUS_SECRET: ${{ secrets.OTZOVIK_PUBLISH_STATUS_SECRET }}
+        run: |
+          curl --fail --silent --show-error --max-time 15 \
+            -X POST 'https://rzhlcszqtuhkhfibygnk.supabase.co/functions/v1/profile-publication-status' \
+            -H 'Content-Type: application/json' \
+            -H "x-otzovik-publish-secret: ${STATUS_SECRET}" \
+            --data "{\"slug\":\"${{ env.PROFILE_SLUG }}\",\"status\":\"building\",\"workflow_run_id\":${{ github.run_id }}}"
+
       - name: Checkout public build repository
         uses: actions/checkout@v4
 
@@ -146,3 +159,30 @@ jobs:
 
           git commit -m "Publish profile: ${{ env.PROFILE_SLUG }}"
           git push
+
+      - name: Report publication lifecycle: published
+        if: ${{ success() && env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          STATUS_SECRET: ${{ secrets.OTZOVIK_PUBLISH_STATUS_SECRET }}
+        run: |
+          REVISION="$(git rev-parse HEAD)"
+          curl --fail --silent --show-error --max-time 15 \
+            -X POST 'https://rzhlcszqtuhkhfibygnk.supabase.co/functions/v1/profile-publication-status' \
+            -H 'Content-Type: application/json' \
+            -H "x-otzovik-publish-secret: ${STATUS_SECRET}" \
+            --data "{\"slug\":\"${{ env.PROFILE_SLUG }}\",\"status\":\"published\",\"workflow_run_id\":${{ github.run_id }},\"artifact_revision\":\"${REVISION}\"}"
+
+      - name: Report publication lifecycle: failed
+        if: ${{ failure() && env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          STATUS_SECRET: ${{ secrets.OTZOVIK_PUBLISH_STATUS_SECRET }}
+        run: |
+          curl --fail --silent --show-error --max-time 15 \
+            -X POST 'https://rzhlcszqtuhkhfibygnk.supabase.co/functions/v1/profile-publication-status' \
+            -H 'Content-Type: application/json' \
+            -H "x-otzovik-publish-secret: ${STATUS_SECRET}" \
+            --data "{\"slug\":\"${{ env.PROFILE_SLUG }}\",\"status\":\"failed\",\"workflow_run_id\":${{ github.run_id }},\"error_code\":\"workflow_failed\"}"
