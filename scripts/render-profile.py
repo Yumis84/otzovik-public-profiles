@@ -46,7 +46,9 @@ def main():
     description=data.get("description") or "Публичный профиль компании на Отзыв.com."
     native=data.get("native_rating") if isinstance(data.get("native_rating"),dict) else {}
     native_rating=native.get("rating")
-    native_count=native.get("review_count") or 0
+    native_count=native.get("review_count")
+    if native_count is None:
+        native_count=0
     reviews=[x for x in (data.get("reviews") or []) if isinstance(x,dict)]
     media=[x for x in (data.get("media") or []) if isinstance(x,dict)]
     updated_at=data.get("updated_at") or ""
