@@ -41,7 +41,12 @@ def main():
     service_html="".join(f"<span class='chip'>{esc(x)}</span>" for x in services) or "<p class='muted'>Услуги пока не опубликованы.</p>"
     rating_html="".join(f"<article class='card source-card'><div class='label'>{esc(x.get('source'))}</div><div class='rating'>{esc(x.get('rating') if x.get('rating') is not None else '—')}</div><div class='muted'>{(esc(x.get('rating_count') or 0)+' оценок · '+esc(x.get('review_count') or 0)+' отзывов') if x.get('rating') is not None else 'Рейтинг пока не получен'}</div></article>" for x in ratings) or "<p class='muted'>Источники рейтинга пока не подключены.</p>"
     raw_locations=data.get("locations") or []
-    location_html="".join(f"<article class='card location-card'><span class='location-number'>{i:02d}</span><strong>{esc(x.get('name') or x.get('address') or x.get('city') or 'Филиал')}</strong>{f'<p>{esc(x.get(chr(97)+chr(100)+chr(100)+chr(114)+chr(101)+chr(115)+chr(115)))}</p>' if x.get('address') else ''}{f'<p><a href=\'tel:{esc(x.get(chr(112)+chr(104)+chr(111)+chr(110)+chr(101)))}\'>{esc(x.get('phone'))}</a></p>' if x.get('phone') else ''}<span class='muted'>{esc(x.get('city') or '')}</span></article>" for i,x in enumerate((x for x in raw_locations if isinstance(x,dict)),1)) or "<p class='muted'>Филиалы пока не опубликованы.</p>"
+    def render_location(i,x):
+        title=esc(x.get("name") or x.get("address") or x.get("city") or "Филиал")
+        address=f"<p>{esc(x.get('address'))}</p>" if x.get("address") else ""
+        phone=f"<p><a href=\"tel:{esc(x.get('phone'))}\">{esc(x.get('phone'))}</a></p>" if x.get("phone") else ""
+        return f"<article class='card location-card'><span class='location-number'>{i:02d}</span><strong>{title}</strong>{address}{phone}<span class='muted'>{esc(x.get('city') or '')}</span></article>"
+    location_html="".join(render_location(i,x) for i,x in enumerate((x for x in raw_locations if isinstance(x,dict)),1)) or "<p class='muted'>Филиалы пока не опубликованы.</p>"
     status=data.get("profile_status") or "ready"
     description=data.get("description") or "Публичный профиль компании на Отзыв.com."
     native=data.get("native_rating") if isinstance(data.get("native_rating"),dict) else {}
@@ -106,8 +111,8 @@ sections.forEach(s=>io.observe(s));links.forEach(a=>a.addEventListener('click',(
     md += ["",f"## Услуги ({len(services)})", *[f"- {x}" for x in services], "", "## Рейтинги", f"- Отзыв.com: {native_rating if native_rating is not None else 'нет опубликованного рейтинга'}; отзывов: {native_count}"]
     md += [f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'рейтинг пока не получен'}; оценок: {x.get('rating_count') or 0}; отзывов: {x.get('review_count') or 0}" for x in ratings]
     md += ["",f"## Собственные отзывы ({len(reviews)})","",f"## Публичные изображения ({len(public_media)})","",f"Canonical: {canonical}"]
-    (out/"profile.md").write_text("\\n".join(md)+"\\n",encoding="utf-8")
+    (out/"profile.md").write_text("\n".join(md)+"\n",encoding="utf-8")
     ll=[f"# {name}",f"url: {canonical}",f"slug: {a.slug}",f"city: {city}",f"profile_status: {status}",f"updated_at: {updated_at}",f"locations_count: {len(raw_locations)}",f"services_count: {len(services)}",f"rating_sources_count: {len(ratings)}",f"native_reviews_count: {native_count}",f"public_media_count: {len(public_media)}","","Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.","JSON: profile.json","Markdown: profile.md"]
-    (out/"llms.txt").write_text("\\n".join(ll)+"\\n",encoding="utf-8")
+    (out/"llms.txt").write_text("\n".join(ll)+"\n",encoding="utf-8")
 
 if __name__=="__main__": main()
