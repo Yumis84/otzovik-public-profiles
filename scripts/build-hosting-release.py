@@ -40,12 +40,36 @@ def main() -> None:
         raise SystemExit("No complete generated profiles found")
 
     manifest = {"format": 1, "profiles": slugs, "files": files}
+
+    # Root discovery artifacts for hosting targets that expose company profiles
+    # on canonical subdomains. Keep them deterministic and derived only from
+    # complete generated profiles.
+    sitemap_urls = "".join(
+        f"  <url><loc>https://{slug}.xn--b1ajuq0c.com/</loc></url>\n"
+        for slug in slugs
+    )
+    sitemap = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + sitemap_urls +
+        '</urlset>\n'
+    )
+    robots = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml\n"
+    )
+    (out / "sitemap.xml").write_text(sitemap, encoding="utf-8")
+    (out / "robots.txt").write_text(robots, encoding="utf-8")
+
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     archive = out / "otzovik-public-profiles.tar.gz"
     with tarfile.open(archive, "w:gz") as tf:
         tf.add(manifest_path, arcname="manifest.json")
+        tf.add(out / "sitemap.xml", arcname="sitemap.xml")
+        tf.add(out / "robots.txt", arcname="robots.txt")
         for item in files:
             tf.add(root / item["path"], arcname="profiles/" + item["path"])
 
