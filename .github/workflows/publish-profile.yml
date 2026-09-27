@@ -30,7 +30,7 @@ permissions:
 jobs:
   publish:
     concurrency:
-      group: publish-profile-${{ github.run_id }}
+      group: publish-profile-${{ github.event.client_payload.slug || inputs.slug }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
