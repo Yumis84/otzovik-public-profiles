@@ -1,7 +1,7 @@
 {
   "id": "71fceb2f-38d2-4311-8008-3c9f6b1b5a41",
   "city": "Калининград",
-  "name": "Ортопедия +",
+  "name": "Ортопедия",
   "slug": "ortomediya",
   "media": [
     {
@@ -344,7 +344,7 @@
     }
   ],
   "legal_name": "ООО «Фармед»",
-  "updated_at": "2026-09-27T15:14:52.664976+00:00",
+  "updated_at": "2026-09-27T15:17:05.682315+00:00",
   "description": null,
   "native_rating": {
     "rating": null,

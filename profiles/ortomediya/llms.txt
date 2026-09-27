@@ -1,9 +1,9 @@
-# Ортопедия +
+# Ортопедия
 url: https://ortomediya.xn--b1ajuq0c.com/
 slug: ortomediya
 city: Калининград
 profile_status: ready
-updated_at: 2026-09-27T15:14:52.664976+00:00
+updated_at: 2026-09-27T15:17:05.682315+00:00
 locations_count: 6
 services_count: 16
 rating_sources_count: 3
