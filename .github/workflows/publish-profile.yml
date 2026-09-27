@@ -36,10 +36,11 @@ jobs:
     env:
       PROFILE_SLUG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.slug || inputs.slug }}
       PUBLISH_MODE: ${{ github.event_name == 'repository_dispatch' && 'supabase' || inputs.mode }}
+      PUBLISH_STATUS_SECRET: ${{ secrets.OTZOVIK_PUBLISH_STATUS_SECRET }}
 
     steps:
       - name: Report publication lifecycle: building
-        if: ${{ env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        if: ${{ env.PUBLISH_MODE == 'supabase' && env.PUBLISH_STATUS_SECRET != '' }}
         continue-on-error: true
         shell: bash
         env:
@@ -161,7 +162,7 @@ jobs:
           git push
 
       - name: Report publication lifecycle: published
-        if: ${{ success() && env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        if: ${{ success() && env.PUBLISH_MODE == 'supabase' && env.PUBLISH_STATUS_SECRET != '' }}
         continue-on-error: true
         shell: bash
         env:
@@ -175,7 +176,7 @@ jobs:
             --data "{\"slug\":\"${{ env.PROFILE_SLUG }}\",\"status\":\"published\",\"workflow_run_id\":${{ github.run_id }},\"artifact_revision\":\"${REVISION}\"}"
 
       - name: Report publication lifecycle: failed
-        if: ${{ failure() && env.PUBLISH_MODE == 'supabase' && secrets.OTZOVIK_PUBLISH_STATUS_SECRET != '' }}
+        if: ${{ failure() && env.PUBLISH_MODE == 'supabase' && env.PUBLISH_STATUS_SECRET != '' }}
         continue-on-error: true
         shell: bash
         env:
