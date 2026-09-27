@@ -84,6 +84,17 @@ def main():
     if city: schema["areaServed"]={"@type":"City","name":city}
     if services: schema["knowsAbout"]=services
     if same_as: schema["sameAs"]=same_as
+    logo_media=next((src for x,src in public_media if str(x.get("type") or "").lower()=="logo"),None)
+    cover_media=next((src for x,src in public_media if str(x.get("type") or "").lower()=="cover"),None)
+    def absolute_media(src):
+        if not src: return ""
+        if src.startswith("https://"): return src
+        if re.fullmatch(r"media/[A-Za-z0-9._-]+",src): return canonical+src
+        return ""
+    schema_logo=absolute_media(logo_media)
+    schema_image=absolute_media(cover_media or (public_media[0][1] if public_media else ""))
+    if schema_logo: schema["logo"]=schema_logo
+    if schema_image: schema["image"]=schema_image
     schema_json=json.dumps(schema,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
     native_html=f"<article class='card'><div class='label'>Отзыв.com</div><div class='rating'>{esc(native_rating if native_rating is not None else '—')}</div><div class='muted'>{esc(native_count)} опубликованных отзывов</div></article>"
     def render_review(x):
@@ -99,7 +110,7 @@ def main():
     doc=f"""<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="{esc(description[:160])}"><meta name="theme-color" content="#101828"><link rel="canonical" href="{canonical}">
-<meta property="og:type" content="website"><meta property="og:title" content="{esc(name)} — отзывы и информация о компании"><meta property="og:description" content="{esc(description[:160])}"><meta property="og:url" content="{canonical}">
+<meta property="og:type" content="website"><meta property="og:title" content="{esc(name)} — отзывы и информация о компании"><meta property="og:description" content="{esc(description[:160])}"><meta property="og:url" content="{canonical}">{('<meta property=\"og:image\" content=\"'+esc(schema_image)+'\">') if schema_image else ''}
 <title>{esc(name)} — отзывы, филиалы и услуги{(' в '+esc(city)) if city else ''} | Отзыв.com</title><link rel="icon" href="https://xn--b1ajuq0c.com/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="profile.css"><script type="application/ld+json">{schema_json}</script></head>
 <body><header class="top"><a class="brand" href="https://xn--b1ajuq0c.com/" aria-label="Отзыв.com — главная">отзыв<span>.com</span></a></header>
 <nav class="nav" aria-label="Разделы профиля"><a href="#overview">Обзор</a><a href="#ratings">Рейтинги</a><a href="#media">Фото</a><a href="#reviews">Отзывы</a><a href="#locations">Филиалы</a><a href="#services">Услуги</a><a href="#ai">Для AI</a><a href="#freshness">Актуальность</a></nav>
