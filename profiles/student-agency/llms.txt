@@ -8,7 +8,7 @@ locations_count: 2
 services_count: 4
 rating_sources_count: 0
 native_reviews_count: 0
-public_media_count: 0
+public_media_count: 6
 
 Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.
 JSON: profile.json
