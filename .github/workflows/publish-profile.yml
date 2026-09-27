@@ -152,6 +152,9 @@ jobs:
           manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
           if not manifest.get("profiles"):
               raise SystemExit("Release manifest contains no profiles")
+          discovery = manifest.get("discovery", {})
+          if set(discovery) != {"sitemap.xml", "robots.txt"}:
+              raise SystemExit("Release manifest does not inventory discovery artifacts")
           ET.parse(out / "sitemap.xml")
           robots = (out / "robots.txt").read_text(encoding="utf-8")
           if "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml" not in robots:
