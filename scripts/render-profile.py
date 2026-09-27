@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, json, html
+import argparse, json, html, re
 from pathlib import Path
 
 def esc(v):
