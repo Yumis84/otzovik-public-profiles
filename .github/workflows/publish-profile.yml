@@ -36,6 +36,7 @@ jobs:
     env:
       PROFILE_SLUG: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.slug || inputs.slug }}
       PUBLISH_MODE: ${{ github.event_name == 'repository_dispatch' && 'supabase' || inputs.mode }}
+
     steps:
       - name: Checkout public build repository
         uses: actions/checkout@v4
@@ -50,7 +51,9 @@ jobs:
 
       - name: Validate renderer syntax
         if: ${{ env.PUBLISH_MODE == 'supabase' }}
-        run: python3 -m py_compile scripts/render-profile.py
+        run: |
+          python3 -m py_compile scripts/render-profile.py
+          python3 -m py_compile scripts/fetch-profile-media.py
 
       - name: Fetch canonical public profile from Supabase
         if: ${{ env.PUBLISH_MODE == 'supabase' }}
@@ -66,14 +69,26 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
             --data "{\"p_slug\":\"${{ env.PROFILE_SLUG }}\"}" \
             -o /tmp/profile.json
+
           python3 - <<'PY'
           import json
-          p='/tmp/profile.json'
-          d=json.load(open(p,encoding='utf-8'))
-          if not isinstance(d,dict) or not d.get('name'):
+
+          p = '/tmp/profile.json'
+          d = json.load(open(p, encoding='utf-8'))
+
+          if not isinstance(d, dict) or not d.get('name'):
               raise SystemExit('Supabase returned no public company profile')
           PY
-          python3 scripts/render-profile.py --slug "${{ env.PROFILE_SLUG }}" --data /tmp/profile.json
+
+          python3 scripts/fetch-profile-media.py \
+            --data /tmp/profile.json \
+            --out "profiles/${{ env.PROFILE_SLUG }}/media" \
+            --base-url "https://rzhlcszqtuhkhfibygnk.supabase.co" \
+            --key "${SUPABASE_PUBLISHABLE_KEY}"
+
+          python3 scripts/render-profile.py \
+            --slug "${{ env.PROFILE_SLUG }}" \
+            --data /tmp/profile.json
 
       - name: Validate generated public artifacts
         if: ${{ env.PUBLISH_MODE == 'supabase' }}
@@ -84,13 +99,17 @@ jobs:
           test -s "profiles/${{ env.PROFILE_SLUG }}/profile.json"
           test -s "profiles/${{ env.PROFILE_SLUG }}/profile.md"
           test -s "profiles/${{ env.PROFILE_SLUG }}/llms.txt"
+
           grep -q 'application/ld+json' "profiles/${{ env.PROFILE_SLUG }}/index.html"
           grep -q 'rel="canonical"' "profiles/${{ env.PROFILE_SLUG }}/index.html"
+
           if grep -qi 'noindex' "profiles/${{ env.PROFILE_SLUG }}/index.html"; then
             echo "Generated public profile must not contain noindex"
             exit 1
           fi
-          python3 -m json.tool "profiles/${{ env.PROFILE_SLUG }}/profile.json" >/dev/null
+
+          python3 -m json.tool \
+            "profiles/${{ env.PROFILE_SLUG }}/profile.json" >/dev/null
 
       - name: Checkout legacy source repository
         if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
@@ -103,7 +122,10 @@ jobs:
 
       - name: Publish legacy prepared artifacts
         if: ${{ env.PUBLISH_MODE == 'legacy-source' }}
-        run: python3 scripts/publish-profile.py --slug "${{ env.PROFILE_SLUG }}" --source _source
+        run: |
+          python3 scripts/publish-profile.py \
+            --slug "${{ env.PROFILE_SLUG }}" \
+            --source _source
 
       - name: Remove temporary source data
         if: ${{ always() }}
@@ -114,10 +136,13 @@ jobs:
         run: |
           git config user.name "otzovik-profile-publisher"
           git config user.email "actions@users.noreply.github.com"
+
           git add "profiles/${{ env.PROFILE_SLUG }}"
+
           if git diff --cached --quiet; then
             echo "No profile changes"
             exit 0
           fi
+
           git commit -m "Publish profile: ${{ env.PROFILE_SLUG }}"
           git push
