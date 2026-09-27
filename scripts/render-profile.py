@@ -58,6 +58,15 @@ def main():
             public_media.append((x,src))
     updated_at=data.get("updated_at") or ""
     canonical=f"https://{a.slug}.xn--b1ajuq0c.com/"
+    legal_name=data.get("legal_name") or ""
+    same_as=[x.get("url") for x in (data.get("sources") or []) if isinstance(x,dict) and isinstance(x.get("url"),str) and x.get("url").startswith("https://")]
+    schema={"@context":"https://schema.org","@type":"Organization","name":name,"url":website or canonical}
+    if legal_name: schema["legalName"]=legal_name
+    if description: schema["description"]=description
+    if city: schema["areaServed"]={"@type":"City","name":city}
+    if services: schema["knowsAbout"]=services
+    if same_as: schema["sameAs"]=same_as
+    schema_json=json.dumps(schema,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
     native_html=f"<article class='card'><div class='label'>Отзыв.com</div><div class='rating'>{esc(native_rating if native_rating is not None else '—')}</div><div class='muted'>{esc(native_count)} опубликованных отзывов</div></article>"
     review_html="".join(f"<article class='review'><div class='stars'>{'★' * int(x.get('rating') or 0)}</div><p>{esc(x.get('text') or x.get('body') or '')}</p></article>" for x in reviews) or "<p class='muted'>Собственных опубликованных отзывов пока нет.</p>"
     media_html="".join(f"<figure class='media-card'><img src='{esc(src)}' alt='{esc(x.get('alt') or x.get('caption') or name)}' loading='lazy'><figcaption><span class='media-type'>{esc(x.get('type') or 'photo')}</span>{esc(x.get('caption') or '')}</figcaption></figure>" for x,src in public_media)
@@ -67,7 +76,7 @@ def main():
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="{esc(description[:160])}"><meta name="theme-color" content="#101828"><link rel="canonical" href="{canonical}">
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(name)} — отзывы и информация о компании"><meta property="og:description" content="{esc(description[:160])}"><meta property="og:url" content="{canonical}">
-<title>{esc(name)} — отзывы, филиалы и услуги{(' в '+esc(city)) if city else ''} | Отзыв.com</title><link rel="icon" href="https://xn--b1ajuq0c.com/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="profile.css"></head>
+<title>{esc(name)} — отзывы, филиалы и услуги{(' в '+esc(city)) if city else ''} | Отзыв.com</title><link rel="icon" href="https://xn--b1ajuq0c.com/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="profile.css"><script type="application/ld+json">{schema_json}</script></head>
 <body><header class="top"><a class="brand" href="https://xn--b1ajuq0c.com/">отзыв<span>.com</span></a><a href="#about">О компании</a></header>
 <nav class="nav" aria-label="Разделы профиля"><a href="#overview">Обзор</a><a href="#ratings">Рейтинги</a><a href="#media">Фото</a><a href="#reviews">Отзывы</a><a href="#locations">Филиалы</a><a href="#services">Услуги</a><a href="#ai">Для AI</a><a href="#freshness">Актуальность</a></nav>
 <main>
@@ -84,9 +93,13 @@ def main():
     (out/"index.html").write_text(doc,encoding="utf-8")
     (out/"profile.css").write_text("""*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f6f3;color:#111;font:16px/1.5 system-ui,-apple-system,sans-serif}.top{height:64px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,calc((100% - 1120px)/2));position:sticky;top:0;z-index:5}.brand{font-size:22px;font-weight:800;text-decoration:none}.brand span{font-weight:400}.nav{background:#fff;border-bottom:1px solid #ddd;display:flex;gap:26px;overflow:auto;padding:13px max(20px,calc((100% - 1120px)/2));position:sticky;top:64px;z-index:4}.nav a,.links a{color:#111;text-decoration:none;white-space:nowrap}main,footer{max-width:1120px;margin:auto;padding:0 20px}.hero{padding:70px 0 54px}.hero h1{font-size:clamp(38px,7vw,72px);line-height:1;margin:14px 0 20px}.lead{font-size:20px;max-width:760px;color:#444}.crumbs{font-size:13px;color:#777;margin-bottom:22px}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em}.meta,.chips,.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.meta span,.chip,.links a{background:#fff;border:1px solid #d8d8d2;border-radius:999px;padding:8px 13px}section{padding:46px 0;border-top:1px solid #d8d8d2}.head h2{font-size:34px;margin:7px 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card,.review,.media-card{background:#fff;border:1px solid #ddd;border-radius:16px;padding:20px}.card p{margin:8px 0}.location-card{position:relative;padding-top:46px}.location-number{position:absolute;top:16px;right:18px;font-size:12px;font-weight:800;color:#888}.policy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:18px}.policy-grid article{background:#fff;border:1px solid #ddd;border-radius:14px;padding:18px}.policy-grid p{color:#686868;margin-bottom:0}.label,.muted{color:#686868}.rating{font-size:36px;font-weight:800;margin:8px 0}.stars{font-size:20px;letter-spacing:2px}.reviews{display:grid;gap:12px}.media-type{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.1em;margin-right:8px}.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.media-card{margin:0;overflow:hidden}.media-card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}.media-card figcaption{padding-top:10px}.button{display:inline-block;background:#111;color:#fff;text-decoration:none;border:1px solid #111;border-radius:10px;padding:11px 16px}.button.secondary{background:#fff;color:#111}.ai{background:#111;color:#fff;border-radius:20px;padding:30px;margin-top:30px}.ai .links a{background:#222;border-color:#444;color:#fff}footer{padding:34px 20px 60px;color:#666}@media(max-width:600px){.top{height:56px}.nav{top:56px}.hero{padding-top:48px}.head h2{font-size:28px}}""",encoding="utf-8")
     (out/"profile.json").write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    md=[f"# {name}", "", f"Город: {city}", "", "## Услуги", *[f"- {x}" for x in services], "", "## Рейтинги", *[f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'нет данных'}" for x in ratings]]
-    (out/"profile.md").write_text("\n".join(md)+"\n",encoding="utf-8")
-    ll=[f"# {name}", f"slug: {a.slug}", f"city: {city}", f"services_count: {len(services)}", f"rating_sources_count: {len(ratings)}"]
-    (out/"llms.txt").write_text("\n".join(ll)+"\n",encoding="utf-8")
+    md=[f"# {name}","",description,"",f"- Slug: {a.slug}",f"- Город: {city or 'не указан'}",f"- Юридическое наименование: {legal_name or 'не указано'}",f"- Официальный сайт: {website or 'не указан'}",f"- Статус профиля: {status}",f"- Последнее изменение: {updated_at or 'не указано'}","",f"## Филиалы ({len(raw_locations)})"]
+    md += [f"- {x.get('name') or x.get('address') or 'Филиал'} — {x.get('address') or ''}, {x.get('city') or city}".rstrip(" ,") for x in raw_locations if isinstance(x,dict)]
+    md += ["",f"## Услуги ({len(services)})", *[f"- {x}" for x in services], "", "## Рейтинги", f"- Отзыв.com: {native_rating if native_rating is not None else 'нет опубликованного рейтинга'}; отзывов: {native_count}"]
+    md += [f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'рейтинг пока не получен'}; оценок: {x.get('rating_count') or 0}; отзывов: {x.get('review_count') or 0}" for x in ratings]
+    md += ["",f"## Собственные отзывы ({len(reviews)})","",f"## Публичные изображения ({len(public_media)})","",f"Canonical: {canonical}"]
+    (out/"profile.md").write_text("\\n".join(md)+"\\n",encoding="utf-8")
+    ll=[f"# {name}",f"url: {canonical}",f"slug: {a.slug}",f"city: {city}",f"profile_status: {status}",f"updated_at: {updated_at}",f"locations_count: {len(raw_locations)}",f"services_count: {len(services)}",f"rating_sources_count: {len(ratings)}",f"native_reviews_count: {native_count}",f"public_media_count: {len(public_media)}","","Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.","JSON: profile.json","Markdown: profile.md"]
+    (out/"llms.txt").write_text("\\n".join(ll)+"\\n",encoding="utf-8")
 
 if __name__=="__main__": main()
