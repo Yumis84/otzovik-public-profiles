@@ -1,0 +1,165 @@
+{
+  "id": "b7adc7d4-3f82-420c-99c1-1974d312c145",
+  "city": "Калининград",
+  "name": "Тест-2",
+  "slug": "test2",
+  "media": [
+    {
+      "id": "ae56c8fb-c77a-443f-846e-0a9d11b54d41",
+      "alt": null,
+      "type": "logo",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/logo/1788946523343-1000123867.webp",
+      "url": "media/00-logo.webp"
+    },
+    {
+      "id": "950b82a4-a0b3-47d7-bd1a-59248f77b6f4",
+      "alt": null,
+      "type": "cover",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/cover/1788946532956-1000125849.webp",
+      "url": "media/01-cover.webp"
+    },
+    {
+      "id": "97229492-38ff-44ff-a18f-d6827a3c19dc",
+      "alt": null,
+      "type": "exterior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/exterior/1788908577059-1000125849.webp",
+      "url": "media/02-exterior.webp"
+    },
+    {
+      "id": "0fdc1e23-813a-492b-88ac-0aff9dc4af62",
+      "alt": null,
+      "type": "interior",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/interior/1788946538000-1000125848.webp",
+      "url": "media/03-interior.webp"
+    },
+    {
+      "id": "80a0576a-df02-4cef-a470-217f9c522bf1",
+      "alt": null,
+      "type": "products",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/products/1788946942571-1000125848.webp",
+      "url": "media/04-products.webp"
+    },
+    {
+      "id": "84312746-e420-45f7-b2a3-0fc30e320843",
+      "alt": null,
+      "type": "team",
+      "caption": null,
+      "sort_order": 0,
+      "updated_at": "2026-09-09T11:15:04.185219+00:00",
+      "object_name": "b7adc7d4-3f82-420c-99c1-1974d312c145/team/1788946938890-1000125847.webp",
+      "url": "media/05-team.webp"
+    }
+  ],
+  "phone": "556677",
+  "reviews": [],
+  "sources": [],
+  "website": "https://test.ru/",
+  "services": [
+    {
+      "id": "19b5437b-f8f6-4d96-9605-531bab97ee39",
+      "name": "22222222222222",
+      "category": "3333333333333333333333333",
+      "source_url": "owner-submitted",
+      "description": "555555\n66666666666666\n\n\nопраорггггггггггггг",
+      "verified_at": "2026-09-10T02:49:14.221327+00:00",
+      "official_url": "https://test.ru/"
+    },
+    {
+      "id": "1f8cd9c0-002a-43c5-848b-4eddb175d1e5",
+      "name": "ннннннннннннннннннн",
+      "category": "ннннннннннннннннннн",
+      "source_url": "owner-submitted",
+      "description": "нннннннннннннннннннннннннннннннн",
+      "verified_at": "2026-09-10T02:48:58.85161+00:00",
+      "official_url": "https://test.ru/"
+    },
+    {
+      "id": "2a61c9b3-75b5-4874-8bb5-e64b3361acee",
+      "name": "Тест правки",
+      "category": "Проверка",
+      "source_url": "owner-submitted",
+      "description": "Описание",
+      "verified_at": "2026-09-08T23:06:09.535569+00:00",
+      "official_url": "https://test.ru/"
+    }
+  ],
+  "knowledge": [],
+  "locations": [
+    {
+      "id": "b485d1e1-c5fb-4924-990c-a36aaf09b623",
+      "city": "Калининград",
+      "name": "пкывпяяывкепявпаеп",
+      "hours": {},
+      "phone": "55555555",
+      "address": "кеяпеепмрапч",
+      "source_url": "owner-submitted",
+      "verified_at": "2026-09-10T02:48:17.369766+00:00",
+      "official_url": "https://test.ru/",
+      "relationship_type": "owned"
+    },
+    {
+      "id": "57d31cb5-2224-4026-a506-b9e748839538",
+      "city": "Калининград",
+      "name": "пкывпяяывкепявпаеп пна",
+      "hours": {},
+      "phone": "55555555",
+      "address": "кеяпеепмрапчнгнгнг",
+      "source_url": "owner-submitted",
+      "verified_at": "2026-09-10T02:48:42.067528+00:00",
+      "official_url": "https://test.ru/",
+      "relationship_type": "owned"
+    },
+    {
+      "id": "3964361f-bc02-4c43-a9a9-ccd70124a62b",
+      "city": "Калининград",
+      "name": "Тест",
+      "hours": {
+        "text": "Понедельник-пятница 9:00-18:00"
+      },
+      "phone": "89814627138",
+      "address": "Яналова",
+      "source_url": "owner-submitted",
+      "verified_at": "2026-09-08T23:05:47.235843+00:00",
+      "official_url": "https://test.ru/",
+      "relationship_type": "owned"
+    }
+  ],
+  "legal_name": null,
+  "updated_at": "2026-09-08T23:02:08.183857+00:00",
+  "description": null,
+  "native_rating": {
+    "rating": null,
+    "rating_scale": 5,
+    "review_count": 0
+  },
+  "profile_status": "ready",
+  "questions_answers": [
+    {
+      "id": "872f66ba-a755-451e-a3e3-4bd4c1f6614c",
+      "answer": "Ответ на тестовый вопрос.",
+      "category": "Тест 1",
+      "language": "ru",
+      "question": "Тестовый вопрос",
+      "updated_at": "2026-09-28T18:46:40.758487+00:00",
+      "answered_at": "2026-09-28T18:46:40.758487+00:00",
+      "question_id": "86a086a3-5cae-4e98-94de-2068aa820544",
+      "published_at": "2026-09-28T18:46:40.758487+00:00",
+      "program_label": "Программа тест 1"
+    }
+  ]
+}

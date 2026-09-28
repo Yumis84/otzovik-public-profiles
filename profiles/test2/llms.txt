@@ -1,0 +1,16 @@
+# Тест-2
+url: https://test2.xn--b1ajuq0c.com/
+slug: test2
+city: Калининград
+profile_status: ready
+updated_at: 2026-09-08T23:02:08.183857+00:00
+locations_count: 3
+services_count: 3
+rating_sources_count: 0
+native_reviews_count: 0
+questions_answers_count: 1
+public_media_count: 6
+
+Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.
+JSON: profile.json
+Markdown: profile.md
