@@ -12,8 +12,8 @@ REQUIRED = ("index.html", "profile.css", "profile.json", "profile.md", "llms.txt
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
 
@@ -39,11 +39,6 @@ def main() -> None:
     if not slugs:
         raise SystemExit("No complete generated profiles found")
 
-    manifest = {"format": 1, "profiles": slugs, "files": files}
-
-    # Root discovery artifacts for hosting targets that expose company profiles
-    # on canonical subdomains. Keep them deterministic and derived only from
-    # complete generated profiles.
     sitemap_urls = "".join(
         f"  <url><loc>https://{slug}.xn--b1ajuq0c.com/</loc></url>\n"
         for slug in slugs
@@ -51,24 +46,36 @@ def main() -> None:
     sitemap = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        + sitemap_urls +
-        '</urlset>\n'
+        + sitemap_urls
+        + '</urlset>\n'
     )
     robots = (
         "User-agent: *\n"
         "Allow: /\n"
         "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml\n"
     )
-    sitemap_path = out / "sitemap.xml"\n    robots_path = out / "robots.txt"\n    sitemap_path.write_text(sitemap, encoding="utf-8")\n    robots_path.write_text(robots, encoding="utf-8")
+    sitemap_path = out / "sitemap.xml"
+    robots_path = out / "robots.txt"
+    sitemap_path.write_text(sitemap, encoding="utf-8")
+    robots_path.write_text(robots, encoding="utf-8")
 
+    manifest = {
+        "format": 1,
+        "profiles": slugs,
+        "files": files,
+        "discovery": {
+            "sitemap.xml": {"sha256": sha256(sitemap_path), "bytes": sitemap_path.stat().st_size},
+            "robots.txt": {"sha256": sha256(robots_path), "bytes": robots_path.stat().st_size},
+        },
+    }
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     archive = out / "otzovik-public-profiles.tar.gz"
     with tarfile.open(archive, "w:gz") as tf:
         tf.add(manifest_path, arcname="manifest.json")
-        tf.add(out / "sitemap.xml", arcname="sitemap.xml")
-        tf.add(out / "robots.txt", arcname="robots.txt")
+        tf.add(sitemap_path, arcname="sitemap.xml")
+        tf.add(robots_path, arcname="robots.txt")
         for item in files:
             tf.add(root / item["path"], arcname="profiles/" + item["path"])
 
