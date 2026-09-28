@@ -11,11 +11,13 @@ def main():
     p.add_argument("--data", required=True)
     p.add_argument("--output", default="profiles")
     a=p.parse_args()
-    if not a.slug or any(c not in "abcdefghijklmnopqrstuvwxyz0123456789-" for c in a.slug):
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", a.slug):
         raise SystemExit("invalid slug")
     data=json.loads(Path(a.data).read_text(encoding="utf-8"))
     name=data.get("name")
-    if not name: raise SystemExit("profile.name is required")
+    if not isinstance(name,str) or not name.strip(): raise SystemExit("profile.name is required")
+    payload_slug=data.get("slug")
+    if payload_slug != a.slug: raise SystemExit("profile.slug does not match requested slug")
     out=Path(a.output)/a.slug
     out.mkdir(parents=True,exist_ok=True)
     raw_services=data.get("services") or []
