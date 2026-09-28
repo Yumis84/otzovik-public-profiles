@@ -79,6 +79,9 @@ jobs:
 
           if not isinstance(d, dict) or not d.get('name'):
               raise SystemExit('Supabase returned no public company profile')
+          expected = '${{ env.PROFILE_SLUG }}'
+          if d.get('slug') != expected:
+              raise SystemExit('Supabase profile slug does not match requested slug')
           PY
 
           python3 scripts/fetch-profile-media.py \
