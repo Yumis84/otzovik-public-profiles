@@ -54,6 +54,7 @@ jobs:
         run: |
           python3 -m py_compile scripts/render-profile.py
           python3 -m py_compile scripts/fetch-profile-media.py
+          python3 -m py_compile scripts/build-hosting-release.py
 
       - name: Fetch canonical public profile from Supabase
         if: ${{ env.PUBLISH_MODE == 'supabase' }}
@@ -143,6 +144,10 @@ jobs:
           test -s /tmp/otzovik-release/sitemap.xml
           test -s /tmp/otzovik-release/robots.txt
           test -s /tmp/otzovik-release/otzovik-public-profiles.tar.gz
+          tar -tzf /tmp/otzovik-release/otzovik-public-profiles.tar.gz > /tmp/otzovik-release/archive-files.txt
+          grep -qx 'manifest.json' /tmp/otzovik-release/archive-files.txt
+          grep -qx 'sitemap.xml' /tmp/otzovik-release/archive-files.txt
+          grep -qx 'robots.txt' /tmp/otzovik-release/archive-files.txt
           python3 - <<'PY'
           import json
           import pathlib
