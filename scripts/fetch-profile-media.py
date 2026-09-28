@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, json, pathlib, re, subprocess
+import argparse, json, pathlib, re, subprocess, tempfile
 
 ALLOWED_EXT={".jpg",".jpeg",".png",".webp"}
 OBJECT_RE=re.compile(r"^[0-9a-f-]{36}/[A-Za-z0-9_-]+/[A-Za-z0-9._-]+$")
