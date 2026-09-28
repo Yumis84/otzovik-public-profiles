@@ -33,3 +33,21 @@ The example is intentionally server-agnostic. Replace `/srv/otzovik-public-profi
 ## Release model
 
 Deploy the complete generated tree atomically where possible. Do not render company data on the web server. A later Jino/VPS adapter may sync the same tree via SSH/rsync/SFTP without changing the renderer.
+
+
+## Apex discovery contract
+
+The portable hosting release also contains discovery artifacts at its release root:
+
+- `sitemap.xml`
+- `robots.txt`
+- `manifest.json`
+
+A hosting adapter that serves the canonical apex host `xn--b1ajuq0c.com` SHOULD expose:
+
+- `https://xn--b1ajuq0c.com/sitemap.xml` -> release-root `sitemap.xml`
+- `https://xn--b1ajuq0c.com/robots.txt` -> release-root `robots.txt`
+
+This apex mapping is separate from wildcard company-host routing. Do not map apex requests into `profiles/<slug>/`, and do not change the existing `<slug>.xn--b1ajuq0c.com` contract.
+
+The current repository/Pages tree does not itself deploy these generated release-root files. A provider-specific apex adapter must be activated and HTTP-verified before canonical discovery is considered live.
