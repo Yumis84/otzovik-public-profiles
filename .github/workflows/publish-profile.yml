@@ -155,6 +155,14 @@ jobs:
           discovery = manifest.get("discovery", {})
           if set(discovery) != {"sitemap.xml", "robots.txt"}:
               raise SystemExit("Release manifest does not inventory discovery artifacts")
+          import hashlib
+          for name in ("sitemap.xml", "robots.txt"):
+              path = out / name
+              meta = discovery[name]
+              actual_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+              actual_bytes = path.stat().st_size
+              if meta.get("sha256") != actual_sha or meta.get("bytes") != actual_bytes:
+                  raise SystemExit(f"Release discovery integrity mismatch: {name}")
           ET.parse(out / "sitemap.xml")
           robots = (out / "robots.txt").read_text(encoding="utf-8")
           if "Sitemap: https://xn--b1ajuq0c.com/sitemap.xml" not in robots:
