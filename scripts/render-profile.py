@@ -71,6 +71,7 @@ def main():
     if native_count is None:
         native_count=0
     reviews=[x for x in (data.get("reviews") or []) if isinstance(x,dict)]
+    questions_answers=[x for x in (data.get("questions_answers") or []) if isinstance(x,dict) and x.get("question") and x.get("answer")]
     media=[x for x in (data.get("media") or []) if isinstance(x,dict)]
     public_media=[]
     for x in media:
@@ -109,6 +110,11 @@ def main():
         except (TypeError,ValueError): rating=0
         return f"<article class='review'><div class='review-head'><strong>{author}</strong><div class='stars'>{'★' * rating}</div></div><p>{esc(x.get('text') or x.get('body') or '')}</p>{response_html}</article>"
     review_html="".join(render_review(x) for x in reviews) or "<p class='muted'>Собственных опубликованных отзывов пока нет.</p>"
+    def render_qa(x):
+        meta=" · ".join(str(v) for v in (x.get("program"),x.get("category")) if v)
+        meta_html=f"<div class='muted'>{esc(meta)}</div>" if meta else ""
+        return f"<article class='card qa-card'><strong>{esc(x.get('question'))}</strong><p>{esc(x.get('answer'))}</p>{meta_html}</article>"
+    qa_html="".join(render_qa(x) for x in questions_answers) or "<p class='muted'>Опубликованных вопросов и ответов пока нет.</p>"
     media_html="".join(f"<figure class='media-card'><button class='media-open' type='button' data-media-src='{esc(src)}' aria-label='Открыть фотографию'><img src='{esc(src)}' alt='{esc(x.get('alt') or x.get('caption') or name)}' loading='lazy'></button><figcaption><span class='media-type'>{esc(x.get('type') or 'photo')}</span>{esc(x.get('caption') or '')}</figcaption></figure>" for x,src in public_media)
     if not media_html:
         media_html="<p class='muted'>Фотографии подготовлены владельцем, но публичные изображения пока не опубликованы.</p>"
@@ -118,12 +124,13 @@ def main():
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(name)} — отзывы и информация о компании"><meta property="og:description" content="{esc(description[:160])}"><meta property="og:url" content="{canonical}">{('<meta property=\"og:image\" content=\"'+esc(schema_image)+'\">') if schema_image else ''}
 <title>{esc(name)} — отзывы, филиалы и услуги{(' в '+esc(city)) if city else ''} | Отзыв.com</title><link rel="icon" href="https://xn--b1ajuq0c.com/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="profile.css"><script type="application/ld+json">{schema_json}</script></head>
 <body><header class="top"><a class="brand" href="https://xn--b1ajuq0c.com/" aria-label="Отзыв.com — главная">отзыв<span>.com</span></a></header>
-<nav class="nav" aria-label="Разделы профиля"><a href="#overview">Обзор</a><a href="#ratings">Рейтинги</a><a href="#media">Фото</a><a href="#reviews">Отзывы</a><a href="#locations">Филиалы</a><a href="#services">Услуги</a><a href="#about">О компании</a><a href="#ai">Для AI</a><a href="#freshness">Актуальность</a></nav>
+<nav class="nav" aria-label="Разделы профиля"><a href="#overview">Обзор</a><a href="#ratings">Рейтинги</a><a href="#media">Фото</a><a href="#reviews">Отзывы</a><a href="#qa">Вопросы и ответы</a><a href="#locations">Филиалы</a><a href="#services">Услуги</a><a href="#about">О компании</a><a href="#ai">Для AI</a><a href="#freshness">Актуальность</a></nav>
 <main>
 <section id="overview" class="hero"><div><nav class="crumbs" aria-label="Хлебные крошки">Компании{(' / '+esc(city)) if city else ''}</nav><span class="eyebrow">НЕЗАВИСИМЫЙ ПРОФИЛЬ КОМПАНИИ · {esc(status).upper()}</span><h1>{esc(name)}</h1><p class="lead">{esc(description)}</p><div class="meta"><span>{esc(city)}</span><span>{len(raw_locations)} филиалов</span><span>{len(services)} услуг</span><span>Общий рейтинг не рассчитывается</span></div><div class="hero-actions"><a class="button" href="#reviews">Отзывы</a><a class="button secondary" href="#locations">Выбрать филиал</a>{f'<a class="button secondary" href="{esc(website)}" target="_blank" rel="noopener nofollow">Официальный сайт ↗</a>' if website else ''}</div></div></section>
 <section id="ratings"><div class="head"><span class="eyebrow">ИСТОЧНИКИ</span><h2>Рейтинги на площадках</h2><p class="muted">Каждая площадка показана отдельно. Отзыв.com не складывает оценки разных источников в искусственный средний балл.</p></div><div class="grid">{native_html}{rating_html}</div></section>
 <section id="media"><div class="head"><span class="eyebrow">МЕДИА</span><h2>Фото компании</h2></div><div class="media-grid">{media_html}</div>{'<p class="muted">Опубликовано изображений: '+str(len(public_media))+'.</p>' if public_media else ''}</section>
 <section id="reviews"><div class="head"><span class="eyebrow">ОТЗЫВ.COM</span><h2>Отзывы пользователей</h2><p class="muted">Собственные отзывы публикуются отдельно от внешних рейтингов и проходят модерацию.</p></div><div class="reviews">{review_html}</div><div class="policy-grid"><article><strong>Проверка перед публикацией</strong><p>Новые отзывы проходят модерацию.</p></article><article><strong>Ответ компании</strong><p>Ответ подтверждённого представителя отображается отдельно.</p></article><article><strong>Жалоба и исправление</strong><p>Решения модерации не изменяют исходный текст автора незаметно.</p></article></div></section>
+<section id="qa"><div class="head"><span class="eyebrow">ОФИЦИАЛЬНЫЕ ОТВЕТЫ</span><h2>Вопросы и ответы</h2><p class="muted">Опубликованные ответы компании на вопросы пользователей.</p></div><div class="grid">{qa_html}</div></section>
 <section id="locations"><div class="head"><span class="eyebrow">АДРЕСА</span><h2>Филиалы</h2></div><div class="grid">{location_html}</div></section>
 <section id="services"><div class="head"><span class="eyebrow">НАПРАВЛЕНИЯ</span><h2>Услуги</h2></div><div class="chips">{service_html}</div></section>
 <section id="about"><div class="head"><span class="eyebrow">КОМПАНИЯ</span><h2>О компании</h2></div><p>{esc(description)}</p>{f'<p><a class="button" href="{esc(website)}" rel="nofollow noopener">Официальный сайт ↗</a></p>' if website else ''}</section>
@@ -145,9 +152,11 @@ sections.forEach(s=>io.observe(s));links.forEach(a=>a.addEventListener('click',(
     md += [f"- {x.get('name') or x.get('address') or 'Филиал'} — {x.get('address') or ''}, {x.get('city') or city}".rstrip(" ,") for x in raw_locations if isinstance(x,dict)]
     md += ["",f"## Услуги ({len(services)})", *[f"- {x}" for x in services], "", "## Рейтинги", f"- Отзыв.com: {native_rating if native_rating is not None else 'нет опубликованного рейтинга'}; отзывов: {native_count}"]
     md += [f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'рейтинг пока не получен'}; оценок: {x.get('rating_count') or 0}; отзывов: {x.get('review_count') or 0}" for x in ratings]
-    md += ["",f"## Собственные отзывы ({len(reviews)})","",f"## Публичные изображения ({len(public_media)})","",f"Canonical: {canonical}"]
+    md += ["",f"## Собственные отзывы ({len(reviews)})","",f"## Вопросы и ответы ({len(questions_answers)})"]
+    md += [f"- **{x.get('question')}** — {x.get('answer')}" for x in questions_answers]
+    md += ["",f"## Публичные изображения ({len(public_media)})","",f"Canonical: {canonical}"]
     (out/"profile.md").write_text("\n".join(md)+"\n",encoding="utf-8")
-    ll=[f"# {name}",f"url: {canonical}",f"slug: {a.slug}",f"city: {city}",f"profile_status: {status}",f"updated_at: {updated_at}",f"locations_count: {len(raw_locations)}",f"services_count: {len(services)}",f"rating_sources_count: {len(ratings)}",f"native_reviews_count: {native_count}",f"public_media_count: {len(public_media)}","","Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.","JSON: profile.json","Markdown: profile.md"]
+    ll=[f"# {name}",f"url: {canonical}",f"slug: {a.slug}",f"city: {city}",f"profile_status: {status}",f"updated_at: {updated_at}",f"locations_count: {len(raw_locations)}",f"services_count: {len(services)}",f"rating_sources_count: {len(ratings)}",f"native_reviews_count: {native_count}",f"questions_answers_count: {len(questions_answers)}",f"public_media_count: {len(public_media)}","","Machine-readable canonical company profile. Ratings from different external sources are not averaged into one score.","JSON: profile.json","Markdown: profile.md"]
     (out/"llms.txt").write_text("\n".join(ll)+"\n",encoding="utf-8")
 
 if __name__=="__main__": main()
