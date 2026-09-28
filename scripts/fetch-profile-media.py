@@ -25,7 +25,17 @@ def main():
         kind=re.sub(r"[^A-Za-z0-9_-]","-",str(m.get("type") or "image"))
         name=f"{i:02d}-{kind}{ext}"
         url=f"{a.base_url.rstrip('/')}/storage/v1/object/authenticated/company-media/{obj}"
-        subprocess.run(["curl","--fail","--silent","--show-error","--proto","=https","--tlsv1.2","--max-time","30","--max-filesize","5242880","-H",f"apikey: {a.key}","-H",f"Authorization: Bearer {a.key}",url,"-o",str(out/name)],check=True)
+        target=out/name
+        with tempfile.NamedTemporaryFile(dir=out,delete=False) as tmp:
+            tmp_path=pathlib.Path(tmp.name)
+        try:
+            subprocess.run(["curl","--fail","--silent","--show-error","--proto","=https","--tlsv1.2","--max-time","30","--max-filesize","5242880","-H",f"apikey: {a.key}","-H",f"Authorization: Bearer {a.key}",url,"-o",str(tmp_path)],check=True)
+            if tmp_path.stat().st_size <= 0:
+                raise RuntimeError("Downloaded media object is empty")
+            tmp_path.replace(target)
+        finally:
+            if tmp_path.exists():
+                tmp_path.unlink()
         m["url"]="media/"+name
     p.write_text(json.dumps(d,ensure_ascii=False),encoding="utf-8")
 
