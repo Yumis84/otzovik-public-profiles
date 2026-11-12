@@ -36,3 +36,46 @@ jobs:
         env:
           OTZOVIK_CABINET_ROOT: ${{ github.workspace }}/cabinet
         run: node --test tests/browser-isolated.test.mjs
+  real-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: Yumis84/otzovik-company-profile
+          ref: c438d4c050ee76accf6d0333972ab4dc6b98b1ba
+          path: cabinet
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm ci
+        working-directory: cabinet
+      - run: node tests/prepare-gateway-stack.mjs
+        working-directory: cabinet
+      - name: Start disposable Supabase
+        run: npx supabase start --workdir /tmp/otzovik-supabase -x studio,realtime,logflare,vector,supavisor > /tmp/otzovik-stack-start.log 2>&1
+        working-directory: cabinet
+      - name: Start disposable Edge gateway
+        working-directory: cabinet
+        run: |
+          npx supabase functions serve --workdir /tmp/otzovik-supabase --env-file /tmp/otzovik-gateway.env --no-verify-jwt > /tmp/otzovik-edge.log 2>&1 &
+          node tests/wait-gateway.mjs
+      - run: npx supabase status --workdir /tmp/otzovik-supabase -o json > /tmp/otzovik-local-status.json
+        working-directory: cabinet
+      - run: npx playwright install --with-deps chromium
+        working-directory: cabinet
+      - name: Run pinned cabinet regression and install candidate schema locally
+        run: node tests/local-stack.mjs
+        working-directory: cabinet
+      - name: Run real Auth, PostgREST and adapter lifecycle
+        env:
+          OTZOVIK_CABINET_ROOT: ${{ github.workspace }}/cabinet
+        run: node tests/real-supabase-e2e.mjs
+      - name: Stop disposable Supabase
+        if: always()
+        run: npx supabase stop --workdir /tmp/otzovik-supabase --no-backup
+        working-directory: cabinet
