@@ -27,3 +27,8 @@ test('fixed backend URL rejects credentials, query, non-HTTPS and unexpected pre
  const elevated='x.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.x';
  assert.throws(()=>createSpecialistHandler({backendOrigin:'https://db.example',anonKey:elevated}));
 });
+test('in-flight pre-takedown snapshot can finish, subsequent request rechecks',async()=>{
+ let unblock,started;const entered=new Promise(resolve=>started=resolve),release=new Promise(resolve=>unblock=resolve);let first=true;
+ const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{if(first){first=false;started();await release;return result(projection);}return result(null);}});
+ const pending=call(handle);await entered;assert.equal((await call(handle)).status,404);unblock();assert.equal((await pending).status,200);assert.equal((await call(handle)).status,404);
+});
