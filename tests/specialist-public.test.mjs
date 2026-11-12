@@ -14,7 +14,7 @@ test('fresh authoritative projection per request; unpublish, republish, erasure'
 });
 test('strict host, slug, method and asset rejection; forwarded headers ignored',async()=>{
  let calls=0;const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{calls++;return result(projection);}});
- for(const input of [{host:'xn--b1ajuq0c.com'},{host:'nested.'+slug+'.xn--b1ajuq0c.com'},{host:'x--y.xn--b1ajuq0c.com'},{host:'evil.com'},{host:slug+'.xn--b1ajuq0c.com:443'},{url:'/profile.json'},{url:'/?x=1'},{method:'POST'},{extra:['Host','evil.com']}])assert.notEqual((await call(handle,input)).status,200);
+ for(const input of [{host:'xn--b1ajuq0c.com'},{host:'nested.'+slug+'.xn--b1ajuq0c.com'},{host:'x--y.xn--b1ajuq0c.com'},{host:'Kelvin.xn--b1ajuq0c.com'},{host:'evil.com'},{host:slug+'.xn--b1ajuq0c.com:443'},{url:'/profile.json'},{url:'/?x=1'},{method:'POST'},{extra:['Host','evil.com']}])assert.notEqual((await call(handle,input)).status,200);
  assert.equal(calls,0);assert.equal((await call(handle,{extra:['X-Forwarded-Host','evil.com']})).status,200);
  const head=await call(handle,{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.body,'');
 });

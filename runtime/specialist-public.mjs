@@ -15,7 +15,7 @@ const headers={
 };
 function hostSlug(req){
  const hs=[];for(let i=0;i<req.rawHeaders.length;i+=2)if(req.rawHeaders[i].toLowerCase()==='host')hs.push(req.rawHeaders[i+1]);
- if(hs.length!==1||typeof hs[0]!=='string')return null;
+ if(hs.length!==1||typeof hs[0]!=='string'||!/^[\x21-\x7e]+$/.test(hs[0]))return null;
  const host=hs[0].toLowerCase();if(!host.endsWith(canonicalSuffix))return null;
  const slug=host.slice(0,-canonicalSuffix.length);
  return slugPattern.test(slug)&&!slug.includes('--')?slug:null;
