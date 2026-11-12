@@ -22,6 +22,10 @@ test('upstream failure, redirect, wrong shape, excessive bytes and leaked fields
  const items=[()=>{throw Error('offline')},()=>result(null,302),()=>result(projection,200,'text/html'),()=>result({...projection,owner_id:'secret'}),()=>result({...projection,slug:'other'}),()=>result({...projection,description:'x'.repeat(20000)})];
  for(const fn of items){const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:fn});let r=await call(handle);assert.equal(r.status,503);assert(!r.body.includes('secret'));assert.match(r.headers['cache-control'],/no-store/);}
 });
+test('valid Unicode names follow database character limits',async()=>{
+ const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>result({...projection,display_name:'😀'.repeat(100)})});
+ assert.equal((await call(handle)).status,200);
+});
 test('fixed backend URL rejects credentials, query, non-HTTPS and unexpected prefix',()=>{
  for(const origin of ['http://db.example','https://user:pass@db.example','https://db.example/x','https://db.example/?q=1'])assert.throws(()=>createSpecialistHandler({backendOrigin:origin,anonKey:'sb_publishable_test'}));
  const elevated='x.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.x';

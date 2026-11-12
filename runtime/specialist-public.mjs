@@ -31,7 +31,7 @@ async function boundedJson(response){
 function valid(value,slug){
  if(!value||Array.isArray(value)||typeof value!=='object'||Object.keys(value).sort().join(',')!==fields.slice().sort().join(','))return false;
  if(value.slug!==slug)return false;
- for(const field of fields){const v=value[field];if(v===null&&['specialization','city','description'].includes(field))continue;if(typeof v!=='string'||v.length>max[field])return false;}
+ for(const field of fields){const v=value[field];if(v===null&&['specialization','city','description'].includes(field))continue;if(typeof v!=='string'||[...v].length>max[field])return false;}
  return !!value.display_name.trim()&&!!value.profession.trim();
 }
 function documentHtml(p){
