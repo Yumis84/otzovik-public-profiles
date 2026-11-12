@@ -5,13 +5,17 @@ import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
 import {createSpecialistHandler} from '../runtime/specialist-public.mjs';
 const root=process.env.OTZOVIK_CABINET_ROOT;
 assert(root,'isolated cabinet checkout required');
-const {createClient}=createRequire(path.join(path.resolve(root),'package.json'))('@supabase/supabase-js');
+const require=createRequire(path.join(path.resolve(root),'package.json'));
+const {createClient}=require('@supabase/supabase-js'),pg=require('pg');
+const {operatorFixture}=await import(pathToFileURL(path.join(path.resolve(root),'tests/operator-fixture.mjs')).href);
 const cfg=JSON.parse(await fs.readFile('/tmp/otzovik-local-status.json','utf8'));
 for(const v of [cfg.API_URL,cfg.DB_URL])assert(['127.0.0.1','localhost','[::1]'].includes(new URL(v).hostname),'loopback only');
-assert.equal(new URL(cfg.API_URL).port,'54321');assert(cfg.ANON_KEY&&cfg.SERVICE_ROLE_KEY);
+assert.equal(new URL(cfg.API_URL).port,'54321');assert.equal(new URL(cfg.DB_URL).port,'54322');assert(cfg.ANON_KEY&&cfg.SERVICE_ROLE_KEY&&cfg.JWT_SECRET);
+const db=new pg.Client({connectionString:cfg.DB_URL});await db.connect();
 const admin=createClient(cfg.API_URL,cfg.SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const owner=createClient(cfg.API_URL,cfg.ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const stranger=createClient(cfg.API_URL,cfg.ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
@@ -31,7 +35,11 @@ try{
  let r=await get();assert.equal(r.status,200);assert.match(r.body,/Synthetic Adapter/);assert.match(r.headers['cache-control'],/no-store/);
  ok(await owner.rpc('unpublish_my_specialist_v1',{p_specialist_id:profile.id}));r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
  ok(await owner.rpc('publish_my_specialist_v1',{...args,p_request_id:crypto.randomUUID()}));assert.equal((await get()).status,200);
+ const [,operator]=await operatorFixture({api:cfg.API_URL,anon:cfg.ANON_KEY,admin,db,jwtSecret:cfg.JWT_SECRET,ok});
+ assert(ok(await operator.rpc('specialist_suspend_public_v1',{p_specialist_id:profile.id,p_reason:'Synthetic local suspension'})).suspended);
+ r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
+ assert((await owner.rpc('publish_my_specialist_v1',{...args,p_request_id:crypto.randomUUID()})).error,'owner cannot bypass suspension');
  ok(await owner.rpc('confirm_my_specialist_erasure',{p_specialist_id:profile.id,p_confirmation_id:crypto.randomUUID()}));r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
  ok(await admin.auth.admin.deleteUser(user.id));assert.equal((await get()).status,404);
  console.log('PASS real disposable Auth/PostgREST + specialist adapter lifecycle');
-}finally{await new Promise(resolve=>server.close(resolve));}
+}finally{await new Promise(resolve=>server.close(resolve));await db.end();}
