@@ -11,7 +11,7 @@ const make=(override={})=>createSharedRouter({classify:async()=>binding,readMani
 async function call(handler,{host=slug+'.xn--b1ajuq0c.com',url='/',method='GET',extra=[]}={}){let output={};await handler({method,url,rawHeaders:['Host',host,...extra]},{writeHead:(status,headers)=>{output.status=status;output.headers=headers},end:body=>{output.body=body}});return output;}
 test('company bytes, CSS and media served only against exact identity and digest',async()=>{
  let classifications=0;const handler=make({classify:async()=>{classifications++;return binding;}});
- for(const [url,n] of [['/','index.html'],['/profile.css?rev=1%202','profile.css'],['/media/logo.webp','media/logo.webp']]){const r=await call(handler,{url});assert.equal(r.status,200);assert.deepEqual(r.body,files[n]);assert.match(r.headers['cache-control'],/no-store/);assert.match(r.headers['content-security-policy'],/script-src 'none'/);}
+ for(const [url,n] of [['/','index.html'],['/profile.css?rev=1%202','profile.css'],['/media/logo.webp','media/logo.webp']]){const r=await call(handler,{url});assert.equal(r.status,200);assert.deepEqual(r.body,files[n]);assert(!String(r.body).includes(id));assert(!JSON.stringify(r.headers).includes(id));assert.match(r.headers['cache-control'],/no-store/);assert.match(r.headers['content-security-policy'],/script-src 'none'/);}
  assert.equal(classifications,6);const head=await call(handler,{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.body,undefined);
 });
 test('unknown, disabled, malformed or unavailable classifier never falls back to company static',async()=>{

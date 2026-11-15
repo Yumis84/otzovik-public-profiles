@@ -8,3 +8,9 @@ test('elevated, anonymous, malformed token and unsafe backend fail closed',()=>{
  for(const role of ['anon','service_role','authenticated'])assert.throws(()=>createRouteClassifier({backendOrigin:'https://db.example',publicApiKey:'sb_publishable_test',routeToken:tok(role)}));
  assert.throws(()=>createRouteClassifier({backendOrigin:'http://db.example',publicApiKey:'sb_publishable_test',routeToken:tok('specialist_route_reader')}));
 });
+test('expired, revoked, redirected or malformed backend replies do not classify',async()=>{
+ for(const response of [new Response('',{status:401}),new Response('',{status:403}),new Response('',{status:302}),new Response('{bad',{status:200,headers:{'content-type':'application/json'}})]){
+  const classify=createRouteClassifier({backendOrigin:'https://db.example',publicApiKey:'sb_publishable_test',routeToken:tok('specialist_route_reader'),fetcher:async()=>response});
+  await assert.rejects(classify('company-one'));
+ }
+});
