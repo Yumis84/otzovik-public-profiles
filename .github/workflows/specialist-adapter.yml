@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '24'
       - name: Run fail-closed and loopback HTTP checks
-        run: node --test tests/specialist-public.test.mjs tests/http-isolated.test.mjs
+        run: node --test tests/specialist-public.test.mjs tests/http-isolated.test.mjs tests/shared-router.test.mjs tests/company-artifact-store.test.mjs tests/company-manifest.test.mjs tests/route-classifier-rpc.test.mjs
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: Yumis84/otzovik-company-profile
@@ -28,14 +28,14 @@ jobs:
       - name: Execute disposable SQL and HTTP lifecycle
         env:
           OTZOVIK_CABINET_ROOT: ${{ github.workspace }}/cabinet
-        run: node --test tests/sql-projection-isolated.test.mjs
+        run: node --test --test-concurrency=1 tests/sql-projection-isolated.test.mjs tests/shared-sql-e2e.test.mjs
       - name: Install isolated Chromium
         run: npx playwright install --with-deps chromium
         working-directory: cabinet
       - name: Check public layout and escaping
         env:
           OTZOVIK_CABINET_ROOT: ${{ github.workspace }}/cabinet
-        run: node --test tests/browser-isolated.test.mjs
+        run: node --test tests/browser-isolated.test.mjs tests/company-browser.test.mjs
   real-supabase:
     runs-on: ubuntu-latest
     timeout-minutes: 30

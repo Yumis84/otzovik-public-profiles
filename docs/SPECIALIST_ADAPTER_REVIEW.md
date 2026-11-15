@@ -1,6 +1,6 @@
 # Specialist public adapter — review candidate, NO-GO for production
 
-This adapter is part of the existing public-profiles repository; no existing generated company file or routing is modified. It serves **only** requests already assigned to the specialist route by a trusted, fail-closed routing layer. No such integrated routing layer is supplied or deployed in this change. Do not expose the adapter or configure a wildcard proxy before independent review and an owner-approved deployment.
+This adapter is part of the existing public-profiles repository; no existing generated company file or routing is modified. It serves **only** requests already assigned to the specialist route by a trusted, fail-closed routing layer. A candidate combined routing layer exists for tests, but has no authoritative production classifier, issuer or approved deployment and must not be mounted. See SHARED_ROUTING_REVIEW.md. Do not expose the adapter or configure a wildcard proxy before independent review and an owner-approved deployment.
 
 ## Contract
 
@@ -10,7 +10,7 @@ The local service accepts GET/HEAD on `/` and `/index.html`. It derives a slug s
 
 ## Routing and takedown constraints
 
-A null specialist result is intentionally indistinguishable between nonexistent, draft, suspended, unpublished and erased. **Never use null, a timeout, or any error as permission to serve a static fallback**. Existing company artifacts are static and must be delegated to their existing path unchanged only after an authoritative, race-safe company/specialist classification is designed and independently reviewed. An allowlist alone can go stale after slug reuse; trusting client-supplied forwarding headers is unacceptable. Until that problem is solved the combined wildcard route is BLOCKED. See Claude audit request 5e802609. Rollback must not replace this block with unsafe static fallback.
+A null specialist result is intentionally indistinguishable between nonexistent, draft, suspended, unpublished and erased. **Never use null, a timeout, or any error as permission to serve a static fallback**. Existing company artifacts are static and must be delegated to their existing path unchanged only after an authoritative, race-safe company/specialist classification is designed and independently reviewed. An allowlist alone can go stale after slug reuse; trusting client-supplied forwarding headers is unacceptable. The new shared-router is a testable candidate and rejects missing/mismatched bindings, but until authoritative issuer and classifier problems are solved the combined wildcard route is BLOCKED. See Claude audit request 5e802609. Rollback must not replace this block with unsafe static fallback.
 
 No-store must be enforced by every proxy/CDN and verified on actual responses and errors. On fail-closed backend errors the adapter deliberately returns 503, never cached HTML. A request already in flight before unpublish or erasure commits may still deliver data retrieved before that commit; no server can retract bytes already delivered. A strict zero-lag takedown claim requires an approved end-to-end concurrency/in-flight policy and measured acceptance threshold, not just HTTP no-store.
 

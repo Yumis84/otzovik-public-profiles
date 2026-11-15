@@ -7,6 +7,7 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
 import {createSpecialistHandler} from '../runtime/specialist-public.mjs';
+import {createSharedRouter} from '../runtime/shared-router.mjs';
 const root=process.env.OTZOVIK_CABINET_ROOT;
 assert(root,'isolated cabinet checkout required');
 const require=createRequire(path.join(path.resolve(root),'package.json'));
@@ -25,10 +26,20 @@ const user=ok(await admin.auth.admin.createUser({email,password,email_confirm:tr
 ok(await owner.auth.signInWithPassword({email,password}));
 const otherEmail='other-'+crypto.randomUUID()+'@example.test';ok(await admin.auth.admin.createUser({email:otherEmail,password,email_confirm:true}));ok(await stranger.auth.signInWithPassword({email:otherEmail,password}));
 const slug='adapter-'+crypto.randomUUID().slice(0,12), profile=ok(await owner.rpc('create_my_specialist_draft',{p_display_name:'Synthetic Adapter',p_slug:slug,p_profession:'Master'}));
-const handler=createSpecialistHandler({backendOrigin:cfg.API_URL,anonKey:cfg.ANON_KEY,allowLoopbackForTests:true});
+const companyId=crypto.randomUUID(),companySlug='company-'+crypto.randomUUID().slice(0,12),companyHtml=Buffer.from('<html><h1>Synthetic company</h1></html>'),hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+await db.query('INSERT INTO public.companies(id,slug,name) VALUES($1,$2,$3)',[companyId,companySlug,'Synthetic company']);
+const manifest=Buffer.from(JSON.stringify({slug:companySlug,company_id:companyId,version:1,script_hashes:[],files:{'index.html':{sha256:hash(companyHtml),size:companyHtml.length}}}));
+// TEST ONLY: direct privileged registry read and synthetic manifest issuer. No production classifier exists yet.
+const classify=async name=>{const row=(await db.query('SELECT profile_kind,profile_id FROM public.profile_slug_registry WHERE slug=$1',[name])).rows[0];if(!row)return {kind:'unknown',slug:name};if(row.profile_kind==='specialist')return {kind:'specialist',slug:name};return {kind:'company',slug:name,company_id:row.profile_id,version:1,manifest_sha256:hash(manifest)};};
+const specialist=createSpecialistHandler({backendOrigin:cfg.API_URL,anonKey:cfg.ANON_KEY,allowLoopbackForTests:true});let swap=false,reused;
+const handler=createSharedRouter({classify,readManifest:async()=>manifest,readArtifact:async()=>{if(swap){swap=false;await db.query('DELETE FROM public.companies WHERE id=$1',[companyId]);reused=ok(await owner.rpc('create_my_specialist_draft',{p_display_name:'Reused specialist',p_slug:companySlug,p_profession:'Master'}));}return companyHtml;},specialist});
 const server=http.createServer(handler);const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
-const get=()=>new Promise((resolve,reject)=>{let q=http.get({host:'127.0.0.1',port,path:'/',headers:{host:slug+'.xn--b1ajuq0c.com'}},r=>{let body='';r.setEncoding('utf8');r.on('data',x=>body+=x);r.on('end',()=>resolve({status:r.statusCode,headers:r.headers,body}));});q.on('error',reject);});
+const get=(name=slug)=>new Promise((resolve,reject)=>{let q=http.get({host:'127.0.0.1',port,path:'/',headers:{host:name+'.xn--b1ajuq0c.com'}},r=>{let body='';r.setEncoding('utf8');r.on('data',x=>body+=x);r.on('end',()=>resolve({status:r.statusCode,headers:r.headers,body}));});q.on('error',reject);});
 try{
+ let c=await get(companySlug);assert.equal(c.status,200);assert.equal(c.body,companyHtml.toString());
+ swap=true;c=await get(companySlug);assert.equal(c.status,503);assert(!c.body.includes('Synthetic company'));assert(reused);
+ assert.equal((await get(companySlug)).status,404);ok(await owner.rpc('publish_my_specialist_v1',{p_specialist_id:reused.id,p_expected_version:1,p_request_id:crypto.randomUUID()}));
+ c=await get(companySlug);assert.equal(c.status,200);assert(c.body.includes('Reused specialist')&&!c.body.includes('Synthetic company'));
  assert.equal((await get()).status,404);
  const args={p_specialist_id:profile.id,p_expected_version:1,p_request_id:crypto.randomUUID()};
  assert((await stranger.rpc('publish_my_specialist_v1',args)).error);ok(await owner.rpc('publish_my_specialist_v1',args));
