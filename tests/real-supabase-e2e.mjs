@@ -12,6 +12,7 @@ const root=process.env.OTZOVIK_CABINET_ROOT;
 assert(root,'isolated cabinet checkout required');
 const require=createRequire(path.join(path.resolve(root),'package.json'));
 const {createClient}=require('@supabase/supabase-js'),pg=require('pg');
+const {chromium}=require('playwright'),{build}=require('esbuild');
 const {operatorFixture}=await import(pathToFileURL(path.join(path.resolve(root),'tests/operator-fixture.mjs')).href);
 const cfg=JSON.parse(await fs.readFile('/tmp/otzovik-local-status.json','utf8'));
 for(const v of [cfg.API_URL,cfg.DB_URL])assert(['127.0.0.1','localhost','[::1]'].includes(new URL(v).hostname),'loopback only');
@@ -35,6 +36,12 @@ const specialist=createSpecialistHandler({backendOrigin:cfg.API_URL,anonKey:cfg.
 const handler=createSharedRouter({classify,readManifest:async()=>manifest,readArtifact:async()=>{if(swap){swap=false;await db.query('DELETE FROM public.companies WHERE id=$1',[companyId]);reused=ok(await owner.rpc('create_my_specialist_draft',{p_display_name:'Reused specialist',p_slug:companySlug,p_profession:'Master'}));}return companyHtml;},specialist});
 const server=http.createServer(handler);const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
 const get=(name=slug)=>new Promise((resolve,reject)=>{let q=http.get({host:'127.0.0.1',port,path:'/',headers:{host:name+'.xn--b1ajuq0c.com'}},r=>{let body='';r.setEncoding('utf8');r.on('data',x=>body+=x);r.on('end',()=>resolve({status:r.statusCode,headers:r.headers,body}));});q.on('error',reject);});
+const sdk=(await build({stdin:{contents:"export {createClient} from '@supabase/supabase-js'",resolveDir:path.resolve(root)},bundle:true,format:'esm',platform:'browser',write:false})).outputFiles[0].text;
+const cabinet=http.createServer(async(req,res)=>{try{const u=new URL(req.url,'http://127.0.0.1');if(u.pathname==='/supabase-sdk.js'){res.writeHead(200,{'content-type':'text/javascript'});return res.end(sdk);}if(!/^\/account-[a-z-]+\.(html|js|css)$/.test(u.pathname)){res.writeHead(404);return res.end();}let data=await fs.readFile(path.join(path.resolve(root),'_site',u.pathname.slice(1)),'utf8');data=data.replaceAll('https://rzhlcszqtuhkhfibygnk.supabase.co',cfg.API_URL).replaceAll('sb_publishable_yhqWJ1eWUznBkqKwPogTrw_xCdCbFA-',cfg.ANON_KEY).replaceAll('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/+esm','/supabase-sdk.js');res.writeHead(200,{'content-type':u.pathname.endsWith('.js')?'text/javascript':u.pathname.endsWith('.css')?'text/css':'text/html; charset=utf-8'});res.end(data);}catch{res.writeHead(500);res.end();}});
+const cabinetPort=await new Promise((resolve,reject)=>{cabinet.once('error',reject);cabinet.listen(0,'127.0.0.1',()=>resolve(cabinet.address().port));});
+const browser=await chromium.launch({headless:true,args:['--no-sandbox']}),context=await browser.newContext({viewport:{width:390,height:900}});
+await context.route('**/*',async route=>{const u=new URL(route.request().url());if([cfg.API_URL,'http://127.0.0.1:'+cabinetPort].includes(u.origin))return route.continue();if(u.hostname===slug+'.xn--b1ajuq0c.com'||u.hostname===companySlug+'.xn--b1ajuq0c.com'){const result=await get(u.hostname.split('.')[0]);const headers={};for(const k of ['content-type','content-security-policy','cache-control','x-content-type-options'])if(result.headers[k])headers[k]=result.headers[k];return route.fulfill({status:result.status,headers,body:result.body});}return route.abort();});
+const page=await context.newPage(),publicPage=await context.newPage(),publicUrl='https://'+slug+'.xn--b1ajuq0c.com/';
 try{
  let c=await get(companySlug);assert.equal(c.status,200);assert.equal(c.body,companyHtml.toString());
  swap=true;c=await get(companySlug);assert.equal(c.status,503);assert(!c.body.includes('Synthetic company'));assert(reused);
@@ -42,15 +49,19 @@ try{
  c=await get(companySlug);assert.equal(c.status,200);assert(c.body.includes('Reused specialist')&&!c.body.includes('Synthetic company'));
  assert.equal((await get()).status,404);
  const args={p_specialist_id:profile.id,p_expected_version:1,p_request_id:crypto.randomUUID()};
- assert((await stranger.rpc('publish_my_specialist_v1',args)).error);ok(await owner.rpc('publish_my_specialist_v1',args));
+ assert((await stranger.rpc('publish_my_specialist_v1',args)).error);
+ await page.goto('http://127.0.0.1:'+cabinetPort+'/account-login.html');await page.locator('#email').fill(email);await page.locator('#password').fill(password);await page.locator('#submit').click();await page.waitForURL('**/account-home.html');
+ await page.goto('http://127.0.0.1:'+cabinetPort+'/account-create-specialist.html?id='+profile.id);await page.locator('#publication-status').filter({hasText:'Профиль не опубликован'}).waitFor();await page.locator('#publication-confirm').check();await page.locator('#publication-publish').click();await page.locator('#publication-status').filter({hasText:'Профиль опубликован'}).waitFor();
  let r=await get();assert.equal(r.status,200);assert.match(r.body,/Synthetic Adapter/);assert.match(r.headers['cache-control'],/no-store/);
- ok(await owner.rpc('unpublish_my_specialist_v1',{p_specialist_id:profile.id}));r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
- ok(await owner.rpc('publish_my_specialist_v1',{...args,p_request_id:crypto.randomUUID()}));assert.equal((await get()).status,200);
+ for(const width of [320,390,768,1280,1440]){await publicPage.setViewportSize({width,height:900});await publicPage.goto(publicUrl);assert.match(await publicPage.locator('h1').textContent(),/Synthetic Adapter/);assert(await publicPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ await page.locator('#publication-unpublish').click();await page.locator('#publication-status').filter({hasText:'снят с публикации'}).waitFor();r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));await publicPage.goto(publicUrl);assert(!(await publicPage.locator('body').textContent()).includes('Synthetic Adapter'));
+ await page.locator('#publication-publish').click();await page.locator('#publication-status').filter({hasText:'Профиль опубликован'}).waitFor();assert.equal((await get()).status,200);await publicPage.goto(publicUrl);assert.match(await publicPage.locator('h1').textContent(),/Synthetic Adapter/);
  const [,operator]=await operatorFixture({api:cfg.API_URL,anon:cfg.ANON_KEY,admin,db,jwtSecret:cfg.JWT_SECRET,ok});
  assert(ok(await operator.rpc('specialist_suspend_public_v1',{p_specialist_id:profile.id,p_reason:'Synthetic local suspension'})).suspended);
  r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
  assert((await owner.rpc('publish_my_specialist_v1',{...args,p_request_id:crypto.randomUUID()})).error,'owner cannot bypass suspension');
  ok(await owner.rpc('confirm_my_specialist_erasure',{p_specialist_id:profile.id,p_confirmation_id:crypto.randomUUID()}));r=await get();assert.equal(r.status,404);assert(!r.body.includes('Synthetic Adapter'));
  ok(await admin.auth.admin.deleteUser(user.id));assert.equal((await get()).status,404);
- console.log('PASS real disposable Auth/PostgREST + specialist adapter lifecycle');
-}finally{await new Promise(resolve=>server.close(resolve));await db.end();}
+ await publicPage.goto(publicUrl);assert(!(await publicPage.locator('body').textContent()).includes('Synthetic Adapter'));
+ console.log('PASS real disposable browser cabinet + Auth/PostgREST + shared adapter lifecycle (synthetic classifier)');
+}finally{await browser.close();await new Promise(resolve=>cabinet.close(resolve));await new Promise(resolve=>server.close(resolve));await db.end();}
