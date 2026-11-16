@@ -17,11 +17,12 @@ async function safeRead(root,parts,limit){
   if(st.isSymbolicLink()||(i<parts.length-1&&!st.isDirectory()))throw Error('unsafe path');
  }
  const file=await fs.open(current,C.O_RDONLY|C.O_NOFOLLOW);
- try{const st=await file.stat();if(!st.isFile()||st.size>limit)throw Error('invalid file');
+ try{const st=await file.stat();if(!st.isFile()||!Number.isSafeInteger(st.size)||st.size<0||st.size>limit)throw Error('invalid file');
   const resolved=await fs.realpath(current);if(resolved!==current||!resolved.startsWith(root+path.sep))throw Error('escaped root');
-  const out=Buffer.allocUnsafe(limit+1);let used=0;
+  // One sentinel byte detects growth after stat without allocating the maximum per read.
+  const out=Buffer.allocUnsafe(st.size+1);let used=0;
   while(used<out.length){const {bytesRead}=await file.read(out,used,out.length-used,used);if(bytesRead===0)break;used+=bytesRead;}
-  if(used>limit)throw Error('file too large');return out.subarray(0,used);
+  if(used!==st.size)throw Error('file changed during read');return out.subarray(0,used);
  }finally{await file.close();}
 }
 export async function createCompanyArtifactStore({profilesRoot,manifestsRoot}){
@@ -31,3 +32,4 @@ export async function createCompanyArtifactStore({profilesRoot,manifestsRoot}){
   readArtifact:(binding,name)=>safeRead(profiles,[binding.slug,...name.split('/')],10485760)
  };
 }
+

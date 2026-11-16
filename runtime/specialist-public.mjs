@@ -50,7 +50,8 @@ export function createSpecialistHandler({backendOrigin,anonKey,fetcher=globalThi
  return async function handle(req,res){
   const respond=(code,body='')=>{res.writeHead(code,{...headers,'content-type':code===200?'text/html; charset=utf-8':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?'':body);};
   if(req.method!=='GET'&&req.method!=='HEAD')return respond(405,'Not found');
-  const slug=hostSlug(req);if(!slug||!['/','/index.html'].includes(req.url))return respond(404,'Not found');
+  const slug=hostSlug(req);
+  if(!slug||typeof req.url!=='string'||!/^\/(?:index\.html)?(?:\?[^\x00-\x20\x7f#]*)?$/.test(req.url))return respond(404,'Not found');
   try{
    const response=await fetcher(endpoint,{method:'POST',headers:{'content-type':'application/json','accept':'application/json','apikey':anonKey,'authorization':'Bearer '+anonKey,'cache-control':'no-store'},body:JSON.stringify({p_slug:slug}),redirect:'manual',cache:'no-store',signal:AbortSignal.timeout(3000)});
    if(response.status!==200)throw Error('upstream unavailable');
@@ -60,3 +61,4 @@ export function createSpecialistHandler({backendOrigin,anonKey,fetcher=globalThi
   }catch{return respond(503,'Unavailable');}
  };
 }
+

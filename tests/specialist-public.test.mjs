@@ -14,9 +14,15 @@ test('fresh authoritative projection per request; unpublish, republish, erasure'
 });
 test('strict host, slug, method and asset rejection; forwarded headers ignored',async()=>{
  let calls=0;const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{calls++;return result(projection);}});
- for(const input of [{host:'xn--b1ajuq0c.com'},{host:'nested.'+slug+'.xn--b1ajuq0c.com'},{host:'x--y.xn--b1ajuq0c.com'},{host:'Kelvin.xn--b1ajuq0c.com'},{host:'evil.com'},{host:slug+'.xn--b1ajuq0c.com:443'},{url:'/profile.json'},{url:'/?x=1'},{method:'POST'},{extra:['Host','evil.com']}])assert.notEqual((await call(handle,input)).status,200);
+ for(const input of [{host:'xn--b1ajuq0c.com'},{host:'nested.'+slug+'.xn--b1ajuq0c.com'},{host:'x--y.xn--b1ajuq0c.com'},{host:'Kelvin.xn--b1ajuq0c.com'},{host:'evil.com'},{host:slug+'.xn--b1ajuq0c.com:443'},{url:'/profile.json'},{url:'/?x=1#frag'},{method:'POST'},{extra:['Host','evil.com']}])assert.notEqual((await call(handle,input)).status,200);
  assert.equal(calls,0);assert.equal((await call(handle,{extra:['X-Forwarded-Host','evil.com']})).status,200);
  const head=await call(handle,{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.body,'');
+});
+test('query parameters preserve fresh specialist authorization',async()=>{
+ let data=projection,calls=0;const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{calls++;return result(data);}});
+ assert.equal((await call(handle,{url:'/?utm_source=test'})).status,200);
+ data=null;assert.equal((await call(handle,{url:'/index.html?utm_source=test'})).status,404);
+ assert.equal(calls,2);
 });
 test('upstream failure, redirect, wrong shape, excessive bytes and leaked fields fail closed',async()=>{
  const items=[()=>{throw Error('offline')},()=>result(null,302),()=>result(projection,200,'text/html'),()=>result({...projection,owner_id:'secret'}),()=>result({...projection,slug:'other'}),()=>result({...projection,description:'x'.repeat(20000)})];
@@ -36,3 +42,4 @@ test('in-flight pre-takedown snapshot can finish, subsequent request rechecks',a
  const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{if(first){first=false;started();await release;return result(projection);}return result(null);}});
  const pending=call(handle);await entered;assert.equal((await call(handle)).status,404);unblock();assert.equal((await pending).status,200);assert.equal((await call(handle)).status,404);
 });
+
