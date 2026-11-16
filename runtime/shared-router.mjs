@@ -13,7 +13,7 @@ function pathFor(url){
  if(typeof url!=='string'||!url.startsWith('/')||url.startsWith('//')||/[\\#\x00-\x20\x7f]/.test(url))return null;
  const pathname=url.split('?')[0];if(pathname.includes('%'))return null;
  const name=pathname==='/'?'index.html':pathname.slice(1);
- if(fixed[name])return {name,type:fixed[name]};
+ if(Object.hasOwn(fixed,name))return {name,type:fixed[name]};
  const match=/^media\/([a-zA-Z0-9][a-zA-Z0-9._-]{0,150})\.(png|jpg|jpeg|webp)$/.exec(name);
  return match?{name,type:imageTypes[match[2]]}:null;
 }

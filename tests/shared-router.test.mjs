@@ -29,7 +29,7 @@ test('wrong manifest, corrupted asset, unlisted file and path attacks fail close
  assert.equal((await call(make({readManifest:async()=>Buffer.from('{}')}))).status,503);
  assert.equal((await call(make({readArtifact:async()=>Buffer.from('malicious')}))).status,503);
  assert.equal((await call(make(),{url:'/other.html'})).status,404);
- for(const url of ['/../index.html','/%2e%2e/profile.json','//evil.test/','/media/../index.html','/media/a.svg'])assert.equal((await call(make(),{url})).status,404);
+ for(const url of ['/../index.html','/%2e%2e/profile.json','//evil.test/','/media/../index.html','/media/a.svg','/constructor','/toString','/__proto__'])assert.equal((await call(make(),{url})).status,404, url);
  assert.equal((await call(make(),{extra:['Host','evil.invalid']})).status,404);
 });
 test('specialist classification invokes only specialist handler, never company source',async()=>{
