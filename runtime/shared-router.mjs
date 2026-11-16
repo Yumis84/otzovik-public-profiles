@@ -38,7 +38,9 @@ export function createSharedRouter({classify,readManifest,readArtifact,specialis
   if(!['GET','HEAD'].includes(req.method))return respond(405,'Not found');
   const slug=hostSlug(req),file=pathFor(req.url);if(!slug||!file)return respond(404,'Not found');
   try{
-   const binding=await bounded(signal=>classify(slug,signal));if(!bindingValid(binding,slug))throw Error('invalid classification');
+   const classified=await bounded(signal=>classify(slug,signal));if(!bindingValid(classified,slug))throw Error('invalid classification');
+   // Pin the first classification; trusted ports must not mutate the comparison baseline.
+   const binding=Object.freeze({...classified});if(!bindingValid(binding,slug))throw Error('invalid classification snapshot');
    if(binding.kind!=='company')return await specialist(req,res); // no static fallback
    const manifest=verifyManifest(await bounded(signal=>readManifest(binding,signal)),binding),entry=manifest.files[file.name];
    if(!entry)return respond(404,'Not found');
@@ -49,3 +51,4 @@ export function createSharedRouter({classify,readManifest,readArtifact,specialis
   }catch{if(res.headersSent){res.destroy?.();return;}return respond(503,'Unavailable');}
  };
 }
+

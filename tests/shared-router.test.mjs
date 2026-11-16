@@ -25,6 +25,24 @@ test('no stale company content after deletion, reassignment, version or digest c
   let n=0;const handler=make({classify:async()=>++n===1?binding:next});const r=await call(handler);assert.equal(r.status,503);assert(!String(r.body).includes('Company unchanged'));assert.equal(n,2);
  }
 });
+test('classifier response mutation during artifact read does not hide a changed version',async()=>{
+ const shared={...binding};
+ const handler=make({
+  classify:async()=>shared,
+  readArtifact:async(_,n)=>{shared.version++;return files[n];}
+ });
+ const r=await call(handler);
+ assert.equal(r.status,503);
+ assert(!String(r.body).includes('Company unchanged'));
+});
+test('artifact port cannot rewrite the pinned binding to hide a changed version',async()=>{
+ const shared={...binding};
+ const handler=make({
+  classify:async()=>shared,
+  readArtifact:async(b,n)=>{shared.version++;try{b.version=shared.version}catch{}return files[n];}
+ });
+ assert.equal((await call(handler)).status,503);
+});
 test('wrong manifest, corrupted asset, unlisted file and path attacks fail closed',async()=>{
  assert.equal((await call(make({readManifest:async()=>Buffer.from('{}')}))).status,503);
  assert.equal((await call(make({readArtifact:async()=>Buffer.from('malicious')}))).status,503);
@@ -40,3 +58,4 @@ test('a classifier that never resolves fails closed on timeout',async()=>{
  const started=Date.now();const r=await call(make({classify:()=>new Promise(()=>{})}));
  assert.equal(r.status,503);assert(Date.now()-started<5000);assert(!String(r.body).includes('Company unchanged'));
 });
+
