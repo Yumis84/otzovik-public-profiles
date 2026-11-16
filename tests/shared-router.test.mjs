@@ -58,4 +58,10 @@ test('a classifier that never resolves fails closed on timeout',async()=>{
  const started=Date.now();const r=await call(make({classify:()=>new Promise(()=>{})}));
  assert.equal(r.status,503);assert(Date.now()-started<5000);assert(!String(r.body).includes('Company unchanged'));
 });
+test('unsupported method advertises only permitted methods without backend reads',async()=>{
+ let calls=0;const handler=make({classify:async()=>{calls++;return binding;}});
+ const response=await call(handler,{method:'POST'});
+ assert.equal(response.status,405);assert.equal(response.headers.allow,'GET, HEAD');assert.equal(calls,0);
+});
+
 

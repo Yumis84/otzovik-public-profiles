@@ -48,7 +48,7 @@ export function createSpecialistHandler({backendOrigin,anonKey,fetcher=globalThi
  if(!isPublicKey)throw Error('public anon key required');
  const endpoint=new URL('/rest/v1/rpc/get_public_specialist_v1',base).href;
  return async function handle(req,res){
-  const respond=(code,body='')=>{res.writeHead(code,{...headers,'content-type':code===200?'text/html; charset=utf-8':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?'':body);};
+  const respond=(code,body='')=>{res.writeHead(code,{...headers,...(code===405?{allow:'GET, HEAD'}:{}),'content-type':code===200?'text/html; charset=utf-8':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?'':body);};
   if(req.method!=='GET'&&req.method!=='HEAD')return respond(405,'Not found');
   const slug=hostSlug(req);
   if(!slug||typeof req.url!=='string'||!/^\/(?:index\.html)?(?:\?[^\x00-\x20\x7f#]*)?$/.test(req.url))return respond(404,'Not found');
@@ -61,4 +61,5 @@ export function createSpecialistHandler({backendOrigin,anonKey,fetcher=globalThi
   }catch{return respond(503,'Unavailable');}
  };
 }
+
 

@@ -34,7 +34,7 @@ function verifyManifest(raw,b){
 export function createSharedRouter({classify,readManifest,readArtifact,specialist}){
  if([classify,readManifest,readArtifact,specialist].some(x=>typeof x!=='function'))throw Error('trusted ports required');
  return async function shared(req,res){
-  const respond=(status,body='')=>{res.writeHead(status,{...headers,'content-type':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?'':body);};
+  const respond=(status,body='')=>{res.writeHead(status,{...headers,...(status===405?{allow:'GET, HEAD'}:{}),'content-type':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?'':body);};
   if(!['GET','HEAD'].includes(req.method))return respond(405,'Not found');
   const slug=hostSlug(req),file=pathFor(req.url);if(!slug||!file)return respond(404,'Not found');
   try{
@@ -51,4 +51,5 @@ export function createSharedRouter({classify,readManifest,readArtifact,specialis
   }catch{if(res.headersSent){res.destroy?.();return;}return respond(503,'Unavailable');}
  };
 }
+
 

@@ -8,7 +8,10 @@ test or repository is a production credential.
 It signs a domain-separated serialization of slug, company ID, version,
 manifest digest, key ID and a bounded validity window. Verification requires
 an externally supplied current binding, a trusted public key by key ID, and
-the exact manifest bytes. It rejects mismatches, bad signatures, expiry,
+the exact manifest bytes. The candidate's issued_at, expires_at and now are
+integer Unix seconds, not JavaScript millisecond timestamps; callers must
+convert explicitly. The helper does not prove the trustworthiness of the
+caller's clock. It rejects mismatches, bad signatures, expiry,
 noncanonical signatures and unknown keys. The one-hour maximum window is a
 review-only test limit, not an approved operating policy.
 
@@ -27,3 +30,4 @@ authoritative issuer before SQL-contract review, design approval, real
 authentication, lifecycle integration and independent audit. In-flight
 takedown guarantees remain open. Run only the non-SQL test with
 `node --test tests/company-attestation-candidate.test.mjs`.
+

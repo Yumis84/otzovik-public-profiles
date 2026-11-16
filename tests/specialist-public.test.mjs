@@ -32,6 +32,11 @@ test('valid Unicode names follow database character limits',async()=>{
  const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>result({...projection,display_name:'😀'.repeat(100)})});
  assert.equal((await call(handle)).status,200);
 });
+test('unsupported methods advertise permitted methods without reaching backend',async()=>{
+ let calls=0;const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{calls++;return result(projection);}});
+ const response=await call(handle,{method:'POST'});
+ assert.equal(response.status,405);assert.equal(response.headers.allow,'GET, HEAD');assert.equal(calls,0);
+});
 test('fixed backend URL rejects credentials, query, non-HTTPS and unexpected prefix',()=>{
  for(const origin of ['http://db.example','https://user:pass@db.example','https://db.example/x','https://db.example/?q=1'])assert.throws(()=>createSpecialistHandler({backendOrigin:origin,anonKey:'sb_publishable_test'}));
  const elevated='x.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.x';
@@ -42,4 +47,5 @@ test('in-flight pre-takedown snapshot can finish, subsequent request rechecks',a
  const handle=createSpecialistHandler({backendOrigin:'https://db.example',anonKey:'sb_publishable_test',fetcher:async()=>{if(first){first=false;started();await release;return result(projection);}return result(null);}});
  const pending=call(handle);await entered;assert.equal((await call(handle)).status,404);unblock();assert.equal((await pending).status,200);assert.equal((await call(handle)).status,404);
 });
+
 
