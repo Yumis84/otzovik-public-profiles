@@ -3,7 +3,7 @@ import argparse, json, html, re
 from pathlib import Path
 
 def esc(v):
-    return html.escape(str(v or ""))
+    return html.escape(str(v) if v is not None else "")
 
 def main():
     p=argparse.ArgumentParser()
@@ -34,6 +34,7 @@ def main():
         ratings.append({
             "source": x.get("source") or x.get("name") or "",
             "rating": x.get("rating") if x.get("rating") is not None else latest.get("rating"),
+            "rating_scale": x.get("rating_scale") if x.get("rating_scale") is not None else latest.get("rating_scale"),
             "rating_count": x.get("rating_count") if x.get("rating_count") is not None else latest.get("rating_count"),
             "review_count": x.get("review_count") if x.get("review_count") is not None else latest.get("review_count"),
             "url": x.get("url") or x.get("source_url") or "",
@@ -46,7 +47,8 @@ def main():
     service_html="".join(f"<span class='chip'>{esc(x)}</span>" for x in services) or "<p class='muted'>Услуги пока не опубликованы.</p>"
     def render_rating(x):
         score=esc(x.get("rating") if x.get("rating") is not None else "—")
-        meta=(esc(x.get("rating_count") or 0)+" оценок · "+esc(x.get("review_count") or 0)+" отзывов") if x.get("rating") is not None else "Рейтинг пока не получен"
+        if x.get("rating") is not None and x.get("rating_scale") is not None: score += " / "+esc(x["rating_scale"])
+        meta=(esc(x.get("rating_count") if x.get("rating_count") is not None else "неизвестно")+" оценок · "+esc(x.get("review_count") if x.get("review_count") is not None else "неизвестно")+" отзывов") if x.get("rating") is not None else "Рейтинг пока не получен"
         checked=f"<small class='muted source-check'>Проверено: {esc(x.get('checked_at'))}</small>" if x.get("checked_at") else ""
         link=f"<a class='source-link' href='{esc(x.get('url'))}' target='_blank' rel='noopener nofollow'>Открыть источник ↗</a>" if isinstance(x.get("url"),str) and x.get("url").startswith("https://") else ""
         return f"<article class='card source-card'><div class='label'>{esc(x.get('source'))}</div><div class='rating'>{score}</div><div class='muted'>{meta}</div>{checked}{link}</article>"
@@ -69,7 +71,7 @@ def main():
     native_rating=native.get("rating")
     native_count=native.get("review_count")
     if native_count is None:
-        native_count=0
+        native_count="неизвестно"
     reviews=[x for x in (data.get("reviews") or []) if isinstance(x,dict)]
     questions_answers=[x for x in (data.get("questions_answers") or []) if isinstance(x,dict) and x.get("question") and x.get("answer")]
     media=[x for x in (data.get("media") or []) if isinstance(x,dict)]
@@ -103,15 +105,15 @@ def main():
     native_html=f"<article class='card'><div class='label'>Отзыв.com</div><div class='rating'>{esc(native_rating if native_rating is not None else '—')}</div><div class='muted'>{esc(native_count)} опубликованных отзывов</div></article>"
     def render_review(x):
         response=x.get("company_response") or x.get("response")
-        if isinstance(response,dict): response=response.get("text") or response.get("body")
+        if isinstance(response,dict): response=response.get("text") or response.get("body") or response.get("statement")
         response_html=f"<div class='company-response'><strong>Ответ компании</strong><p>{esc(response)}</p></div>" if response else ""
-        author=esc(x.get("author_display_name") or x.get("author_name") or "Пользователь")
+        author=esc(x.get("author_display_name") or x.get("author_name") or x.get("author") or "Пользователь")
         try: rating=max(0,min(5,int(x.get("rating") or 0)))
         except (TypeError,ValueError): rating=0
         return f"<article class='review'><div class='review-head'><strong>{author}</strong><div class='stars'>{'★' * rating}</div></div><p>{esc(x.get('text') or x.get('body') or '')}</p>{response_html}</article>"
     review_html="".join(render_review(x) for x in reviews) or "<p class='muted'>Собственных опубликованных отзывов пока нет.</p>"
     def render_qa(x):
-        meta=" · ".join(str(v) for v in (x.get("program"),x.get("category")) if v)
+        meta=" · ".join(str(v) for v in (x.get("program") or x.get("program_label"),x.get("category")) if v)
         meta_html=f"<div class='muted'>{esc(meta)}</div>" if meta else ""
         return f"<article class='card qa-card'><strong>{esc(x.get('question'))}</strong><p>{esc(x.get('answer'))}</p>{meta_html}</article>"
     qa_html="".join(render_qa(x) for x in questions_answers) or "<p class='muted'>Опубликованных вопросов и ответов пока нет.</p>"
@@ -151,7 +153,7 @@ sections.forEach(s=>io.observe(s));links.forEach(a=>a.addEventListener('click',(
     md=[f"# {name}","",description,"",f"- Slug: {a.slug}",f"- Город: {city or 'не указан'}",f"- Юридическое наименование: {legal_name or 'не указано'}",f"- Официальный сайт: {website or 'не указан'}",f"- Статус профиля: {status}",f"- Последнее изменение: {updated_at or 'не указано'}","",f"## Филиалы ({len(raw_locations)})"]
     md += [f"- {x.get('name') or x.get('address') or 'Филиал'} — {x.get('address') or ''}, {x.get('city') or city}".rstrip(" ,") for x in raw_locations if isinstance(x,dict)]
     md += ["",f"## Услуги ({len(services)})", *[f"- {x}" for x in services], "", "## Рейтинги", f"- Отзыв.com: {native_rating if native_rating is not None else 'нет опубликованного рейтинга'}; отзывов: {native_count}"]
-    md += [f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'рейтинг пока не получен'}; оценок: {x.get('rating_count') or 0}; отзывов: {x.get('review_count') or 0}" for x in ratings]
+    md += [f"- {x.get('source')}: {x.get('rating') if x.get('rating') is not None else 'рейтинг пока не получен'}{(' / '+str(x['rating_scale'])) if x.get('rating') is not None and x.get('rating_scale') is not None else ''}; оценок: {x.get('rating_count') if x.get('rating_count') is not None else 'неизвестно'}; отзывов: {x.get('review_count') if x.get('review_count') is not None else 'неизвестно'}" for x in ratings]
     md += ["",f"## Собственные отзывы ({len(reviews)})","",f"## Вопросы и ответы ({len(questions_answers)})"]
     md += [f"- **{x.get('question')}** — {x.get('answer')}" for x in questions_answers]
     md += ["",f"## Публичные изображения ({len(public_media)})","",f"Canonical: {canonical}"]
